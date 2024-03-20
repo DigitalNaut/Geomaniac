@@ -8,10 +8,10 @@ import { useCountryQuiz } from "src/controllers/useCountryQuiz";
 import { useError } from "src/hooks/useError";
 import { useCountryStore } from "src/hooks/useCountryStore";
 import { useMapViewport } from "src/hooks/useMapViewport";
-import { SvgMap } from "src/components/map/MapSvg";
-import { ActivityButton } from "src/components/activity/ActivityButton";
 import { useUserGuessRecordContext } from "src/contexts/GuessRecordContext";
 import { useMapActivityContext } from "src/contexts/MapActivityContext";
+import { ActivityButton, ActivitySection } from "src/components/activity/ActivityButton";
+import SvgMap from "src/components/map/MapSvg";
 import useActivityHelper from "src/controllers/useActivityHelper";
 import ErrorBanner from "src/components/common/ErrorBanner";
 import GuessHistoryPanel from "src/components/activity/GuessHistoryPanel";
@@ -39,7 +39,7 @@ function MapActivity({
     showNextCountry,
     setError,
   );
-  const { activityMode } = useMapActivityContext();
+  const { activity } = useMapActivityContext();
   const { resetView } = useMapViewport();
 
   const finishActivity = useCallback(() => {
@@ -53,7 +53,7 @@ function MapActivity({
   return (
     <>
       <LeafletMap>
-        {activityMode && (
+        {activity && (
           <>
             <ZoomControl position="topright" />
             <BackControl position="topleft" label="Finish" onClick={finishActivity} />
@@ -61,7 +61,7 @@ function MapActivity({
             {storedCountry.coordinates && (
               <>
                 <Marker position={storedCountry.coordinates} icon={markerIcon} />
-                {activityMode === "review" && (
+                {activity.mode === "review" && (
                   <Popup
                     position={storedCountry.coordinates}
                     keepInView
@@ -79,11 +79,13 @@ function MapActivity({
           </>
         )}
 
-        <SvgMap highlightAlpha3={storedCountry.data?.a3} onClick={handleMapClick} disableColorFilter={!activityMode} />
+        <SvgMap highlightAlpha3={storedCountry.data?.a3} onClick={handleMapClick} disableColorFilter={!activity} />
       </LeafletMap>
 
       <QuizFloatingPanel
-        shouldShow={activityMode === "quiz" && filteredCountryData.length > 0}
+        shouldShow={
+          !!activity && activity.mode === "quiz" && activity.kind === "typing" && filteredCountryData.length > 0
+        }
         activity={{
           answerInputRef,
           submitAnswer,
@@ -94,13 +96,13 @@ function MapActivity({
       />
 
       <ReviewFloatingPanel
-        shouldShow={activityMode === "review"}
+        shouldShow={activity?.mode === "review"}
         showNextCountry={showNextCountry}
         disabled={filteredCountryData.length === 0}
         onError={setError}
       />
 
-      {activityMode && <RegionsDisabledOverlay shouldShow={filteredCountryData.length === 0} />}
+      {activity && <RegionsDisabledOverlay shouldShow={filteredCountryData.length === 0} />}
     </>
   );
 }
@@ -109,7 +111,7 @@ export default function MapActivityLayout() {
   const { guessHistory } = useUserGuessRecordContext();
   const { error, setError, dismissError } = useError();
   const [, setURLSearchParams] = useSearchParams();
-  const { activityMode } = useMapActivityContext();
+  const { activity } = useMapActivityContext();
 
   return (
     <>
@@ -123,33 +125,46 @@ export default function MapActivityLayout() {
         <div className="relative h-full w-full overflow-hidden rounded-lg shadow-inner">
           <MapActivity onFinishActivity={() => setURLSearchParams()} setError={setError} />
 
-          <FloatingHeader shouldShow={!!activityMode} imageSrc={NerdMascot}>
-            {activityMode === "quiz" && "Guess the country!"}
-            {activityMode === "review" && "Reviewing countries"}
+          <FloatingHeader shouldShow={!!activity?.mode} imageSrc={NerdMascot}>
+            {activity?.mode === "quiz" && "Guess the country!"}
+            {activity?.mode === "review" && "Reviewing countries"}
           </FloatingHeader>
 
-          <InstructionOverlay shouldShow={!activityMode}>
-            <ActivityButton
-              className="bg-gradient-to-br from-blue-600 to-blue-700"
-              label="🗺 Review"
-              onClick={() => setURLSearchParams({ activity: "review" })}
-            >
-              Learn about the cultures, geography, and history of countries from around the world.
-            </ActivityButton>
-            <ActivityButton
-              className="bg-gradient-to-br from-yellow-600 to-yellow-700"
-              label="🏆 Quiz"
-              onClick={() => setURLSearchParams({ activity: "quiz" })}
-            >
-              Test your knowledge of countries around the world. Can you guess them all?
-            </ActivityButton>
+          <InstructionOverlay shouldShow={!activity?.mode}>
+            <ActivitySection>
+              <ActivityButton
+                className="bg-gradient-to-br from-blue-600 to-blue-700"
+                label="🗺 Review"
+                onClick={() => setURLSearchParams({ activity: "review", kind: "countries" })}
+              >
+                Learn about the cultures, geography, and history of countries from around the world.
+              </ActivityButton>
+            </ActivitySection>
+            <ActivitySection>
+              <ActivityButton
+                className="bg-gradient-to-br from-pink-600 to-pink-700"
+                label="⌨ Typing Quiz"
+                onClick={() => setURLSearchParams({ activity: "quiz", kind: "typing" })}
+              >
+                Type the name of the country.
+              </ActivityButton>
+              <ActivityButton
+                className="bg-gradient-to-br from-green-600 to-green-700"
+                label="👆 Choosing Quiz"
+                onClick={() => setURLSearchParams({ activity: "quiz", kind: "pointing" })}
+              >
+                Choose the correct country on the map.
+              </ActivityButton>
+            </ActivitySection>
           </InstructionOverlay>
         </div>
 
-        {activityMode && (
+        {activity?.mode && (
           <div className="flex h-1/5 w-max flex-col gap-6 sm:h-auto sm:w-[30ch]">
-            <CountriesListPanel isAbridged={activityMode === "quiz"} />
-            {activityMode === "quiz" && <GuessHistoryPanel guessHistory={guessHistory} />}
+            <CountriesListPanel isAbridged={activity?.mode === "quiz"} />
+            {activity?.mode === "quiz" && activity?.kind === "typing" && (
+              <GuessHistoryPanel guessHistory={guessHistory} />
+            )}
           </div>
         )}
       </MainView>

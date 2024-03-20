@@ -4,9 +4,9 @@ import type countriesMetadata from "src/assets/data/country-metadata.json";
 import { useCountryStoreContext } from "src/contexts/CountryStoreContext";
 import { useCountryFiltersContext } from "src/contexts/CountryFiltersContext";
 
-export type CountryData = (typeof countriesMetadata)[number];
+export type CountryDataList = typeof countriesMetadata;
+export type CountryData = CountryDataList[number];
 export type NullableCountryData = CountryData | null;
-export type CountryDataList = CountryData[];
 
 function randomIndex(length: number) {
   return Math.floor(Math.random() * length);

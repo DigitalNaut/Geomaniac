@@ -17,7 +17,7 @@ import { useMapActivityContext } from "src/contexts/MapActivityContext";
 export default function useActivityHelper(setError: (error: Error) => void) {
   const { flyTo, resetView } = useMapViewport();
   const [searchParams, setURLSearchParams] = useSearchParams();
-  const { activityMode, isRandomReviewMode } = useMapActivityContext();
+  const { activity, isRandomReviewMode } = useMapActivityContext();
   const {
     storedCountry,
     setCountryDataNext,
@@ -40,13 +40,13 @@ export default function useActivityHelper(setError: (error: Error) => void) {
 
       const destination = getCountryCoordinates(countryData);
       setURLSearchParams((prev) => {
-        if (activityMode === "review") prev.set("country", countryData.a3);
+        if (activity?.mode === "review") prev.set("country", countryData.a3);
         else prev.delete("country");
         return prev;
       });
       flyTo(destination);
     },
-    [activityMode, flyTo, setURLSearchParams, storedCountry.data],
+    [activity?.mode, flyTo, setURLSearchParams, storedCountry.data],
   );
 
   const resetUI = useCallback(() => {
@@ -58,7 +58,8 @@ export default function useActivityHelper(setError: (error: Error) => void) {
 
   const showNextCountry = () => {
     try {
-      const nextCountry = activityMode === "quiz" || isRandomReviewMode ? setCountryDataRandom() : setCountryDataNext();
+      const nextCountry =
+        activity?.mode === "quiz" || isRandomReviewMode ? setCountryDataRandom() : setCountryDataNext();
       if (nextCountry) focusUI(nextCountry);
       return nextCountry;
     } catch (error) {
@@ -69,12 +70,13 @@ export default function useActivityHelper(setError: (error: Error) => void) {
   };
 
   const handleMapClick = (a3?: string) => {
-    if (activityMode === "quiz") {
+    if (activity && activity.mode === "quiz" && activity.kind === "typing") {
       focusUI();
       return;
     }
 
     if (!a3) return;
+
     setURLSearchParams((prev) => {
       prev.set("country", a3);
       return prev;
@@ -82,7 +84,7 @@ export default function useActivityHelper(setError: (error: Error) => void) {
   };
 
   useEffect(() => {
-    if (!activityMode) return;
+    if (!activity) return;
 
     const countryParam = searchParams.get("country");
 
@@ -94,10 +96,10 @@ export default function useActivityHelper(setError: (error: Error) => void) {
 
       let countryData: NullableCountryData = null;
 
-      if (activityMode === "review") {
+      if (activity.mode === "review") {
         if (countryParam) countryData = setCountryDataByCode(countryParam);
         else countryData = isRandomReviewMode ? setCountryDataRandom() : setCountryDataNext();
-      } else if (activityMode === "quiz") countryData = setCountryDataRandom();
+      } else if (activity.mode === "quiz") countryData = setCountryDataRandom();
 
       if (countryData) focusUI(countryData);
       else resetUI();
@@ -111,20 +113,18 @@ export default function useActivityHelper(setError: (error: Error) => void) {
       }
     }
   }, [
-    activityMode,
-    storedCountry,
+    activity,
     filteredCountryData,
-    searchParams,
-    isRandomReviewMode,
-    setCountryDataRandom,
-    setCountryDataNext,
-    setCountryDataByCode,
     focusUI,
-    resetUI,
+    isRandomReviewMode,
     resetStore,
+    resetUI,
     resetView,
-    setURLSearchParams,
-    setError,
+    searchParams,
+    setCountryDataByCode,
+    setCountryDataNext,
+    setCountryDataRandom,
+    storedCountry.data,
   ]);
 
   return {

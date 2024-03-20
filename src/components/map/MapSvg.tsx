@@ -1,43 +1,47 @@
-import { useMemo } from "react";
-import { SVGOverlay } from "react-leaflet";
-import { type LatLngBoundsExpression, latLng, latLngBounds } from "leaflet";
+import { Fragment, useMemo } from "react";
+import { CircleMarker, SVGOverlay, Tooltip } from "react-leaflet";
+import { twMerge } from "tailwind-merge";
+import { type LeafletMouseEventHandlerFn, latLng, latLngBounds } from "leaflet";
 
 import { useMapContext } from "src/contexts/MapContext";
 import mapSvg from "src/assets/images/world-map-mercator.svg?raw";
 import { useCountryFiltersContext } from "src/contexts/CountryFiltersContext";
 
-const viewBoxParser = /viewBox="(.+?)"/g;
-const attributesParser = /<path d="(.+?)" A3="(.+?)" ADMIN="(.+?)"\/>/g;
-const widthParser = /width="(.+?)"/g;
-const heightParser = /height="(.+?)"/g;
-const strokeParser = /stroke="(.+?)"/g;
-const fillParser = /fill="(.+?)"/g;
-const strokeLinecapParser = /stroke-linecap="(.+?)"/g;
-const strokeLinejoinParser = /stroke-linejoin="(.+?)"/g;
-const strokeWidthParser = /stroke-width="(.+?)"/g;
+const parser = new DOMParser();
 
-const width = widthParser.exec(mapSvg)?.[1] || "250";
-const height = heightParser.exec(mapSvg)?.[1] || "250";
-const viewBox = viewBoxParser.exec(mapSvg)?.[1] || "0 0 250 250";
-const stroke = strokeParser.exec(mapSvg)?.[1] || "#fff";
-const fill = fillParser.exec(mapSvg)?.[1] || "#7c7c7c";
-const strokeLinecap = strokeLinecapParser.exec(mapSvg)?.[1] || "round";
-const strokeLinejoin = strokeLinejoinParser.exec(mapSvg)?.[1] || "round";
-const strokeWidth = strokeWidthParser.exec(mapSvg)?.[1] || "0.01";
+/**
+ * Extracts the SVG attributes from the map SVG.
+ * @returns
+ */
+function useMapSvg() {
+  const svg = parser.parseFromString(mapSvg, "image/svg+xml");
 
-const svgPaths = [...mapSvg.matchAll(attributesParser)].map(([, path, a3, admin]) => ({ path, a3, admin }));
+  const paths = Array.from(svg.querySelectorAll("path"));
 
-const topLeftCorner = latLng(-84.267, -180.5);
-const bottomRightCorner = latLng(93, 172.1);
-const maxBounds = latLngBounds(topLeftCorner, bottomRightCorner);
+  const topLeftCorner = latLng(-83.115, -180.4);
+  const bottomRightCorner = latLng(83.115, 180.4);
+  const bounds = latLngBounds(topLeftCorner, bottomRightCorner);
 
-const bounds: LatLngBoundsExpression = maxBounds;
+  return {
+    width: svg.documentElement.getAttribute("width") || "250",
+    height: svg.documentElement.getAttribute("height") || "250",
+    viewBox: svg.documentElement.getAttribute("viewBox") || "0 0 250 250",
+    stroke: svg.documentElement.getAttribute("stroke") || "#fff",
+    fill: svg.documentElement.getAttribute("fill") || "#7c7c7c",
+    strokeLinecap: svg.documentElement.getAttribute("stroke-linecap") || "round",
+    strokeLinejoin: svg.documentElement.getAttribute("stroke-linejoin") || "round",
+    strokeWidth: svg.documentElement.getAttribute("stroke-width") || "0.01",
+    paths,
+    bounds,
+  };
+}
+
 /**
  * Renders the map SVG as an overlay on the map.
  * @param props
  * @returns
  */
-export function SvgMap({
+export default function SvgMap({
   highlightAlpha3,
   onClick,
   disableColorFilter,
@@ -48,65 +52,85 @@ export function SvgMap({
 }) {
   const { zoom } = useMapContext();
   const { isCountryInFilters } = useCountryFiltersContext();
+  const { width, height, viewBox, stroke, fill, strokeLinecap, strokeLinejoin, strokeWidth, paths, bounds } =
+    useMapSvg();
 
   const [highlightPath, otherPaths] = useMemo(() => {
-    const index = svgPaths.findIndex((item) => item.a3 === highlightAlpha3);
-    if (index === -1) return [undefined, svgPaths];
+    const index = paths.findIndex((item) => item.id === highlightAlpha3);
+    if (index === -1) return [null, paths];
 
-    const otherPaths = svgPaths.filter((_, i) => i !== index);
-    return [svgPaths[index].path, otherPaths];
-  }, [highlightAlpha3]);
+    const otherPaths = paths.toSpliced(index, 1);
 
-  const onClickHandler = ({ originalEvent }: { originalEvent: MouseEvent }) => {
-    const target = originalEvent.target as SVGPathElement | null;
+    return [paths[index], otherPaths];
+  }, [highlightAlpha3, paths]);
+
+  const click: LeafletMouseEventHandlerFn = ({ originalEvent }) => {
+    const target = originalEvent.target as HTMLElement | null;
     const a3 = target?.getAttribute("data-a3"); // data-a3 is set in the SVGOverlay below
-    if (onClick && a3) onClick(a3);
+
+    console.log("click", a3, target?.id, target);
+
+    if (a3) onClick?.(a3);
   };
 
   return (
     <SVGOverlay
       bounds={bounds}
-      attributes={{
-        xmlns: "http://www.w3.org/2000/svg",
-        width,
-        height,
-        fill,
-        stroke,
-        strokeLinecap,
-        strokeLinejoin,
-        strokeWidth,
-        viewBox,
-      }}
+      attributes={{ width, height, fill, stroke, strokeLinecap, strokeLinejoin, strokeWidth, viewBox }}
       opacity={1}
       interactive
       zIndex={1000}
       className="transition-colors duration-500 ease-in-out"
-      eventHandlers={{
-        click: onClickHandler,
-      }}
+      eventHandlers={{ click }}
     >
-      {otherPaths.map(({ a3, path }, index) => {
-        const colorFilter = disableColorFilter || isCountryInFilters(a3);
+      {otherPaths.map((path, index) => {
+        const colorFilter = disableColorFilter || isCountryInFilters(path.id);
+        const sovereingt = path.getAttribute("data-sovereignt") || "0";
+        const lat = parseFloat(path.getAttribute("data-label_y") || "0");
+        const lon = parseFloat(path.getAttribute("data-label_x") || "0");
+        const adminA3 = path.getAttribute("data-adm0_a3") || "";
+        const unitA3 = path.getAttribute("data-gu_a3") || "";
+        const unit = path.getAttribute("data-geounit") || "";
+
+        const terr = adminA3 !== path.id;
+        const isl = unitA3 !== adminA3;
 
         return (
-          <path
-            key={index}
-            data-a3={a3}
-            d={path}
-            style={{
-              strokeOpacity: colorFilter ? 0.5 : 0.15,
-              stroke: "unset",
-              fill: colorFilter ? "#94a3b8" : "#64748b",
-              strokeWidth: 1 / zoom ** 2,
-            }}
-          />
+          <Fragment key={index}>
+            <path
+              data-a3={path.id}
+              d={path.getAttribute("d") || ""}
+              style={{
+                strokeOpacity: colorFilter ? 0.5 : 0.15,
+                stroke: "unset",
+                fill: colorFilter ? "#94a3b8" : "#64748b",
+                strokeWidth: 3 / zoom ** 2,
+              }}
+            />
+            <CircleMarker center={[lat, lon]} stroke={false} fill={false} className="z-[-50000]">
+              <Tooltip
+                permanent
+                interactive
+                className={twMerge(
+                  "rounded-full px-2 py-1 text-white shadow-none z-[-5000] flex flex-col items-center [&>*]:pointer-events-none",
+                  isl ? "bg-blue-300" : "bg-slate-900/40",
+                  terr ? "border-red-300" : "border-none",
+                )}
+                direction="center"
+                eventHandlers={{ click: () => onClick?.(path.id) }}
+              >
+                <span className="text-sm">{unit}</span>
+                {terr && <span className="text-[11px]">{sovereingt}</span>}
+              </Tooltip>
+            </CircleMarker>
+          </Fragment>
         );
       })}
-      {/* SVG path for the highlight country must be rendered last to be on top of the other countries */}
+
       {highlightPath && (
         <path
           data-a3={highlightAlpha3}
-          d={highlightPath}
+          d={highlightPath.getAttribute("d") || ""}
           style={{
             stroke: "#fcd34d",
             fill: "#fcd34d",

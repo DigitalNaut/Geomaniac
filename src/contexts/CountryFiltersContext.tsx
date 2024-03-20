@@ -2,26 +2,23 @@ import { type PropsWithChildren, createContext, useContext, useMemo, useState } 
 
 import { type CountryDataList } from "src/hooks/useCountryStore";
 import continents from "src/assets/data/continents.json";
-import countriesMetadata from "src/assets/data/country-metadata.json";
+import allCountriesMetadata from "src/assets/data/country-metadata.json";
 
-type CountriesDataByContinent = Record<string, CountryDataList>;
-export type CountryFilters = Record<string, boolean>;
+const countryDataByContinent = allCountriesMetadata.reduce(
+  (groups, country) => {
+    const { cont: continent } = country;
 
-const allCountriesMetadata = countriesMetadata as CountryDataList;
+    groups[continent] ??= [];
+    groups[continent].push(country);
 
-const countryDataByContinent = allCountriesMetadata.reduce((groups, country) => {
-  const { cont: continent } = country;
+    return groups;
+  },
+  {} as Record<string, CountryDataList>,
+);
 
-  if (groups[continent]) groups[continent].push(country);
-  else groups[continent] = [country];
+const initialContinentFilters = Object.fromEntries(continents.map((continent) => [continent, true]));
 
-  return groups;
-}, {} as CountriesDataByContinent);
-
-const initialContinentFilters = continents.reduce((continents, continent) => {
-  continents[continent] = true;
-  return continents;
-}, {} as CountryFilters);
+export type CountryFilters = typeof initialContinentFilters;
 
 function useFilteredCountryData() {
   const [continentFilters, setContinentFilters] = useState(initialContinentFilters);
