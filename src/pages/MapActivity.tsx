@@ -86,13 +86,7 @@ function MapActivity({
         shouldShow={
           !!activity && activity.mode === "quiz" && activity.kind === "typing" && filteredCountryData.length > 0
         }
-        activity={{
-          answerInputRef,
-          submitAnswer,
-          userGuessTally,
-          giveHint,
-          skipCountry,
-        }}
+        activity={{ answerInputRef, submitAnswer, userGuessTally, giveHint, skipCountry }}
       />
 
       <ReviewFloatingPanel

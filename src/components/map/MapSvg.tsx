@@ -88,12 +88,14 @@ export default function SvgMap({
         const sovereingt = path.getAttribute("data-sovereignt") || "0";
         const lat = parseFloat(path.getAttribute("data-label_y") || "0");
         const lon = parseFloat(path.getAttribute("data-label_x") || "0");
+        const sovA3 = path.getAttribute("data-sov_a3") || "";
+        const admin = path.getAttribute("data-admin") || "";
         const adminA3 = path.getAttribute("data-adm0_a3") || "";
         const unitA3 = path.getAttribute("data-gu_a3") || "";
         const unit = path.getAttribute("data-geounit") || "";
 
-        const terr = adminA3 !== path.id;
-        const isl = unitA3 !== adminA3;
+        const isTerritory = sovA3 !== adminA3;
+        const isUnit = adminA3 !== unitA3;
 
         return (
           <Fragment key={index}>
@@ -112,15 +114,25 @@ export default function SvgMap({
                 permanent
                 interactive
                 className={twMerge(
-                  "rounded-full px-2 py-1 text-white shadow-none z-[-5000] flex flex-col items-center [&>*]:pointer-events-none",
-                  isl ? "bg-blue-300" : "bg-slate-900/40",
-                  terr ? "border-red-300" : "border-none",
+                  "rounded-md px-2 py-1 text-white shadow-none z-[-5000] flex flex-col items-center [&>*]:pointer-events-none",
+                  isUnit ? "bg-blue-900" : isTerritory ? "bg-red-900" : "bg-slate-900/40",
                 )}
                 direction="center"
                 eventHandlers={{ click: () => onClick?.(path.id) }}
               >
-                <span className="text-sm">{unit}</span>
-                {terr && <span className="text-[11px]">{sovereingt}</span>}
+                <span className="text-sm">
+                  {unit} ({unitA3})
+                </span>
+                {isUnit && (
+                  <span className="text-[11px]">
+                    {admin} ({adminA3})
+                  </span>
+                )}
+                {isTerritory && (
+                  <span className="text-[11px]">
+                    {sovereingt} ({sovA3})
+                  </span>
+                )}
               </Tooltip>
             </CircleMarker>
           </Fragment>
