@@ -16,12 +16,12 @@ const wikipediaLogo =
 function CountryWikiInfo({ onError }: { onError: (error: Error) => void }) {
   const { storedCountry } = useCountryStore();
   const { isLoading, error, data } = useQuery({
-    queryKey: ["country-info", storedCountry.data, storedCountry.data?.wikipedia, storedCountry.data?.name],
+    queryKey: ["country-info", storedCountry.data, storedCountry.data?.WIKIDATAID, storedCountry.data?.GEOUNIT],
     queryFn: () =>
       axios
         .get<WikidataSummaryResponse>(
           `${wikidataApi}&prop=info%7Cpageimages%7Cextracts&exintro&inprop=url&piprop=thumbnail%7Coriginal&redirects=1&origin=*&titles=${
-            storedCountry.data?.wikipedia ?? storedCountry.data?.name ?? ""
+            storedCountry.data?.WIKIDATAID ?? storedCountry.data?.GEOUNIT ?? ""
           }`,
           {
             headers: {
@@ -59,7 +59,7 @@ function CountryWikiInfo({ onError }: { onError: (error: Error) => void }) {
         <div className="float-left mt-5">
           <img
             className="peer m-2"
-            alt={storedCountry.data?.name}
+            alt={storedCountry.data?.GEOUNIT}
             src={page.thumbnail.source}
             width={page.thumbnail.width}
           />
@@ -109,7 +109,7 @@ export default function ReviewFloatingPanel({
 
   return (
     <animated.div
-      className="pointer-events-none absolute inset-x-0 bottom-8 z-[1000] mx-auto flex h-fit w-fit flex-col items-center gap-2 rounded-md"
+      className="pointer-events-none absolute inset-x-0 bottom-8 z-[1000] mx-auto flex size-fit flex-col items-center gap-2 rounded-md"
       style={firstTrail}
     >
       {!disabled && (

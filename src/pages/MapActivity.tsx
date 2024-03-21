@@ -71,7 +71,7 @@ function MapActivity({
                     closeOnEscapeKey={false}
                     autoPan={false}
                   >
-                    <h3 className="text-xl">{storedCountry.data?.name ?? "Unknown"}</h3>
+                    <h3 className="text-xl">{storedCountry.data?.GEOUNIT ?? "Unknown"}</h3>
                   </Popup>
                 )}
               </>
@@ -79,7 +79,7 @@ function MapActivity({
           </>
         )}
 
-        <SvgMap highlightAlpha3={storedCountry.data?.a3} onClick={handleMapClick} disableColorFilter={!activity} />
+        <SvgMap highlightAlpha3={storedCountry.data?.GU_A3} onClick={handleMapClick} disableColorFilter={!activity} />
       </LeafletMap>
 
       <QuizFloatingPanel
@@ -116,7 +116,7 @@ export default function MapActivityLayout() {
       )}
 
       <MainView>
-        <div className="relative h-full w-full overflow-hidden rounded-lg shadow-inner">
+        <div className="relative size-full overflow-hidden rounded-lg shadow-inner">
           <MapActivity onFinishActivity={() => setURLSearchParams()} setError={setError} />
 
           <FloatingHeader shouldShow={!!activity?.mode} imageSrc={NerdMascot}>

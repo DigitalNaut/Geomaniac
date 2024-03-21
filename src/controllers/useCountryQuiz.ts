@@ -17,7 +17,7 @@ export function useCountryQuiz(showNextCountry: () => NullableCountryData, setEr
     if (countryCorrectAnswer.data) {
       // TODO: Add a better way to provide hints
       //const hint = countryCorrectAnswer.data.name.substring(0, userTries);
-      const hint = countryCorrectAnswer.data.name;
+      const hint = countryCorrectAnswer.data.GEOUNIT;
       setAnswerInputField(hint);
     }
 
@@ -48,20 +48,20 @@ export function useCountryQuiz(showNextCountry: () => NullableCountryData, setEr
     } else incrementTriesTally();
 
     if (countryCorrectAnswer.data) {
-      const { a2, a3, name } = countryCorrectAnswer.data;
+      const { ISO_A2_EH, GU_A3, GEOUNIT } = countryCorrectAnswer.data;
 
       pushGuessToHistory({
         text: userGuess,
         isCorrect,
-        a2,
-        a3,
+        ISO_A2_EH,
+        GU_A3,
       });
 
       updateCountryStats({
-        name,
+        GEOUNIT,
         isCorrect,
-        a2,
-        a3,
+        ISO_A2_EH,
+        GU_A3,
       });
     }
 

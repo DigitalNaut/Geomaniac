@@ -134,7 +134,7 @@ export default function DriveTestPage() {
                     console.log(`Failed to load flag for ${a2}`);
                   }}
                 />
-                <span className="max-w-[4rem] truncate text-sm text-slate-500">{geounit}</span>
+                <span className="max-w-16 truncate text-sm text-slate-500">{geounit}</span>
               </div>
             );
           })}

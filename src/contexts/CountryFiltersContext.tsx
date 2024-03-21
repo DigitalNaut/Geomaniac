@@ -1,12 +1,11 @@
 import { type PropsWithChildren, createContext, useContext, useMemo, useState } from "react";
 
 import { type CountryDataList } from "src/hooks/useCountryStore";
-import continents from "src/assets/data/continents.json";
-import allCountriesMetadata from "src/assets/data/country-metadata.json";
+import allFeaturesData from "src/assets/data/features-data.json";
 
-const countryDataByContinent = allCountriesMetadata.reduce(
+const countryDataByContinent = allFeaturesData.reduce(
   (groups, country) => {
-    const { cont: continent } = country;
+    const { CONTINENT: continent } = country;
 
     groups[continent] ??= [];
     groups[continent].push(country);
@@ -15,6 +14,8 @@ const countryDataByContinent = allCountriesMetadata.reduce(
   },
   {} as Record<string, CountryDataList>,
 );
+
+export const continents = Object.keys(countryDataByContinent);
 
 const initialContinentFilters = Object.fromEntries(continents.map((continent) => [continent, true]));
 
@@ -25,8 +26,8 @@ function useFilteredCountryData() {
 
   const filteredCountryData = useMemo(
     () =>
-      allCountriesMetadata.filter((country) => {
-        const { cont: continent } = country || {};
+      allFeaturesData.filter((country) => {
+        const { CONTINENT: continent } = country || {};
         return continent && continentFilters[continent];
       }),
     [continentFilters],
@@ -40,10 +41,10 @@ function useFilteredCountryData() {
   };
 
   const isCountryInFilters = (a3: string) => {
-    const country = allCountriesMetadata.find((country) => country.a3 === a3);
+    const country = allFeaturesData.find((country) => country.GU_A3 === a3);
     if (!country) return false;
 
-    const { cont: continent } = country;
+    const { CONTINENT: continent } = country;
     return continent && continentFilters[continent];
   };
 

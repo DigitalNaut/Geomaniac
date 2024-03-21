@@ -40,7 +40,7 @@ export default function useActivityHelper(setError: (error: Error) => void) {
 
       const destination = getCountryCoordinates(countryData);
       setURLSearchParams((prev) => {
-        if (activity?.mode === "review") prev.set("country", countryData.a3);
+        if (activity?.mode === "review") prev.set("country", countryData.GU_A3);
         else prev.delete("country");
         return prev;
       });
@@ -107,7 +107,7 @@ export default function useActivityHelper(setError: (error: Error) => void) {
       if (filteredCountryData.length === 0 || !filteredCountryData.includes(storedCountry.data)) {
         resetStore();
         resetUI();
-      } else if (countryParam && countryParam !== storedCountry.data.a3) {
+      } else if (countryParam && countryParam !== storedCountry.data.GU_A3) {
         const countryData = setCountryDataByCode(countryParam);
         if (countryData) focusUI(countryData);
       }

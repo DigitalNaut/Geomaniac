@@ -59,7 +59,7 @@ function UserCard({ children }: PropsWithChildren) {
 
   return (
     <div className="group relative w-fit lg:fixed lg:right-2 lg:top-2">
-      <img src={picture} alt="User avatar" width={32} height={32} className="h-8 w-8 rounded-full" />
+      <img src={picture} alt="User avatar" width={32} height={32} className="size-8 rounded-full" />
       <div
         className="absolute right-0 top-0 z-50 flex  cursor-pointer items-center gap-2
           focus-within:gap-4 focus-within:rounded-md focus-within:bg-white focus-within:p-4 focus-within:text-black
@@ -72,7 +72,7 @@ function UserCard({ children }: PropsWithChildren) {
           rel="noreferrer"
           title="Open preferences on Google Drive"
         >
-          <img src={picture} alt="User avatar" width={32} height={32} className="h-8 w-8 rounded-full" />
+          <img src={picture} alt="User avatar" width={32} height={32} className="size-8 rounded-full" />
           <div>
             <div className="hidden text-sm font-medium group-focus-within:block group-hover:block">{name}</div>
             <div className="hidden text-xs group-focus-within:block group-hover:block">{email}</div>

@@ -1,10 +1,10 @@
 import type { LatLngTuple } from "leaflet";
 
-import type countriesMetadata from "src/assets/data/country-metadata.json";
+import type featuresData from "src/assets/data/features-data.json";
 import { useCountryStoreContext } from "src/contexts/CountryStoreContext";
 import { useCountryFiltersContext } from "src/contexts/CountryFiltersContext";
 
-export type CountryDataList = typeof countriesMetadata;
+export type CountryDataList = typeof featuresData;
 export type CountryData = CountryDataList[number];
 export type NullableCountryData = CountryData | null;
 
@@ -19,8 +19,8 @@ function normalizeName(text?: string) {
     .replace(/\p{Diacritic}/gu, "");
 }
 
-export function getCountryCoordinates(country: CountryData) {
-  return [country.lat, country.lon] as LatLngTuple;
+export function getCountryCoordinates(country: CountryData): LatLngTuple {
+  return [country.LABEL_Y, country.LABEL_X];
 }
 
 export function useCountryStore() {
@@ -31,7 +31,7 @@ export function useCountryStore() {
   function setCountryDataNext(): NullableCountryData {
     if (!filteredCountryData.length) return null;
 
-    const countryIndex = filteredCountryData.findIndex((country) => country?.a3 === storedCountry?.a3);
+    const countryIndex = filteredCountryData.findIndex((country) => country?.GU_A3 === storedCountry?.GU_A3);
     const country = filteredCountryData[(countryIndex + 1) % filteredCountryData.length];
 
     if (!country) return null;
@@ -57,7 +57,7 @@ export function useCountryStore() {
   function setCountryDataByCode(a3?: string): NullableCountryData {
     if (!filteredCountryData.length || !a3) return null;
 
-    const country = filteredCountryData.find((country) => country.a3 === a3);
+    const country = filteredCountryData.find((country) => country.GU_A3 === a3);
 
     if (!country) return null;
 
@@ -67,7 +67,7 @@ export function useCountryStore() {
   }
 
   const compareStoredCountry = (countryName: string) => {
-    const correctAnswer = storedCountry?.name || "";
+    const correctAnswer = storedCountry?.GEOUNIT || "";
     const inputMatchesAnswer = normalizeName(countryName) === normalizeName(correctAnswer);
 
     return inputMatchesAnswer;

@@ -134,7 +134,7 @@ export default function QuizFloatingPanel({
 
   return (
     <animated.div
-      className="absolute inset-x-0 bottom-8 z-[1000] mx-auto flex h-fit w-fit flex-col items-center gap-2 rounded-md text-center"
+      className="absolute inset-x-0 bottom-8 z-[1000] mx-auto flex size-fit flex-col items-center gap-2 rounded-md text-center"
       style={firstTrail}
     >
       <animated.div style={secondTrail}>

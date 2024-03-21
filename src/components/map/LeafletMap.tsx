@@ -12,7 +12,7 @@ export const mapDefaults = {
   center: [0, 0] as LatLngTuple,
   zoom: 2,
   minZoom: 2,
-  maxZoom: 6,
+  maxZoom: 7,
   boundsViscosity: 1,
 };
 

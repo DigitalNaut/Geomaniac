@@ -7,7 +7,7 @@ import {
   type CountryDataList,
   useCountryStore,
 } from "src/hooks/useCountryStore";
-import continents from "src/assets/data/continents.json";
+import { continents } from "src/contexts/CountryFiltersContext";
 import Toggle from "src/components/common/Toggle";
 import { useSearchParams } from "react-router-dom";
 
@@ -25,14 +25,14 @@ function CountryListEntry({
     <button
       className={twMerge(
         "flex items-center gap-2 pl-4 -ml-2 -mr-1 pr-1 text-left -indent-2 rounded-sm",
-        country?.a3 === storedCountry?.a3 && "bg-yellow-700 py-1",
+        country?.GU_A3 === storedCountry?.GU_A3 && "bg-yellow-700 py-1",
       )}
-      id={country?.a3}
-      key={country?.a3 + "-country"}
-      title={country?.name}
-      onClick={() => countryClickCallback(country.a3)}
+      id={country?.GU_A3}
+      key={country?.GU_A3 + "-country"}
+      title={country?.GEOUNIT}
+      onClick={() => countryClickCallback(country.GU_A3)}
     >
-      {country?.name}
+      {country?.GEOUNIT}
     </button>
   );
 }
@@ -78,7 +78,7 @@ function ContinentListEntry({
         >
           {continentCountries.map((country) => (
             <CountryListEntry
-              key={country.a3}
+              key={country.GU_A3}
               country={country}
               countryClickCallback={countryClickCallback}
               storedCountry={storedCountry}
@@ -106,7 +106,7 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
   useEffect(() => {
     if (!storedCountry.data || !listRef.current) return;
 
-    const countryButton = listRef.current?.querySelector(`#${storedCountry.data?.a3}`);
+    const countryButton = listRef.current?.querySelector(`#${storedCountry.data?.GU_A3}`);
 
     countryButton?.scrollIntoView({
       behavior: "smooth",
