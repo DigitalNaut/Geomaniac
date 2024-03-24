@@ -27,7 +27,7 @@ export function useMapViewport() {
 
   function resetView() {
     if (!map) return;
-    map.setView(mapDefaults.center, mapDefaults.zoom);
+    map.setView(mapDefaults.center || [0, 0], mapDefaults.zoom || 2);
   }
 
   return { flyTo, resetView };

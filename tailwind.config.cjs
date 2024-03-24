@@ -3,6 +3,11 @@ module.exports = {
   content: ["./src/**/*.{ts,tsx,css}", "./public/*.html"],
   theme: {
     extend: {
+      keyframes: {
+        scrollDash: {
+          "to": { strokeDashoffset: "0" },
+        },
+      },
       backgroundImage: {
         "custom-unknown-flag": "url('src/assets/images/unknown-flag.min.svg')",
       },

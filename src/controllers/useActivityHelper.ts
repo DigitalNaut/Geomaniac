@@ -44,7 +44,11 @@ export default function useActivityHelper(setError: (error: Error) => void) {
         else prev.delete("country");
         return prev;
       });
-      flyTo(destination);
+      flyTo(destination, {
+        zoom: countryData.MIN_LABEL || 2,
+      });
+
+      console.log("countryData", countryData);
     },
     [activity?.mode, flyTo, setURLSearchParams, storedCountry.data],
   );

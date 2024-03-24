@@ -4,7 +4,9 @@ import { useSearchParams } from "react-router-dom";
 
 import { BackControl, MapClick } from "src/components/map";
 import { LeafletMap, markerIcon } from "src/components/map/LeafletMap";
-import { useCountryQuiz } from "src/controllers/useCountryQuiz";
+import { useQuiz } from "src/controllers/useQuiz";
+import { useQuizInput } from "src/controllers/useQuizInput";
+import { useQuizClick } from "src/controllers/useQuizClick";
 import { useError } from "src/hooks/useError";
 import { useCountryStore } from "src/hooks/useCountryStore";
 import { useMapViewport } from "src/hooks/useMapViewport";
@@ -35,10 +37,15 @@ function MapActivity({
 }) {
   const { storedCountry, resetStore, filteredCountryData } = useCountryStore();
   const { showNextCountry, handleMapClick } = useActivityHelper(setError);
-  const { answerInputRef, submitAnswer, userGuessTally, giveHint, skipCountry } = useCountryQuiz(
-    showNextCountry,
-    setError,
-  );
+  const { userGuessTally } = useQuiz(showNextCountry);
+  const { submitAnswer } = useQuizInput(showNextCountry, setError);
+  const {
+    answerInputRef,
+    submitAnswer: submitInput,
+    giveHint: giveInputHint,
+    skipCountry,
+  } = useQuizInput(showNextCountry, setError);
+  const { giveHint: giveClickHint, submitAnswer: submitClick } = useQuizClick(showNextCountry);
   const { activity } = useMapActivityContext();
   const { resetView } = useMapViewport();
 
@@ -86,7 +93,7 @@ function MapActivity({
         shouldShow={
           !!activity && activity.mode === "quiz" && activity.kind === "typing" && filteredCountryData.length > 0
         }
-        activity={{ answerInputRef, submitAnswer, userGuessTally, giveHint, skipCountry }}
+        activity={{ answerInputRef, submitAnswer: submitInput, giveHint: giveInputHint, skipCountry }}
       />
 
       <ReviewFloatingPanel

@@ -118,7 +118,7 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
     <div className={twMerge("flex h-max flex-col gap-2", !isAbridged && "overflow-y-auto")}>
       <h3 className="text-center text-slate-300">Countries by Region</h3>
 
-      <div className={twMerge("flex flex-col overflow-y-auto px-2", !isAbridged && "pb-[60vh]")} ref={listRef}>
+      <div className={twMerge("flex flex-col overflow-y-auto px-2", !isAbridged && "pb-[40vh]")} ref={listRef}>
         {continents.map((continent, index) => (
           <ContinentListEntry
             key={continent}

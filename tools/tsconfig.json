@@ -11,7 +11,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "baseUrl": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "resolvePackageJsonExports": true
   },
   "lib": ["ESNext"]
 }

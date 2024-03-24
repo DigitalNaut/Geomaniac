@@ -1,19 +1,21 @@
-import { useEffect, type PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren, type ComponentProps } from "react";
 import { MapContainer, useMapEvents } from "react-leaflet";
-import { type LatLngTuple, icon } from "leaflet";
+import { icon } from "leaflet";
 
 import "leaflet/dist/leaflet.css";
 import { useMapContext } from "src/contexts/MapContext";
+import { TileLayersControl } from "./TileLayersControl";
 
 // * On Styling layers: https://leafletjs.com/examples/choropleth/
 // * On Markers: https://codesandbox.io/s/react-leaflet-v3-x-geojson-with-typescript-not-rendering-geojson-points-v28ly?file=/src/Map.tsx
 
-export const mapDefaults = {
-  center: [0, 0] as LatLngTuple,
+export const mapDefaults: ComponentProps<typeof MapContainer> = {
+  center: [0, 0],
   zoom: 2,
   minZoom: 2,
   maxZoom: 7,
-  boundsViscosity: 1,
+  zoomControl: false,
+  maxBoundsViscosity: 1,
 };
 
 function MapEvents() {
@@ -35,16 +37,12 @@ export function LeafletMap({ children }: PropsWithChildren) {
   return (
     <MapContainer
       className="bg-gradient-to-br from-sky-700 to-sky-800"
-      center={mapDefaults.center}
-      zoom={mapDefaults.zoom}
-      minZoom={mapDefaults.minZoom}
-      maxZoom={mapDefaults.maxZoom}
-      zoomControl={false}
-      maxBoundsViscosity={mapDefaults.boundsViscosity}
+      {...mapDefaults}
       style={{ width: "100%", height: "100%" }}
     >
       <MapEvents />
       {children}
+      {import.meta.env.DEV && <TileLayersControl />}
     </MapContainer>
   );
 }

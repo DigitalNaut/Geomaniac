@@ -3,7 +3,7 @@ import { animated, useSpring, useTrail } from "@react-spring/web";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faForward, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
-import type { useCountryQuiz } from "src/controllers/useCountryQuiz";
+import type { useQuizInput } from "src/controllers/useQuizInput";
 import { ActionButton } from "src/components/common/ActionButton";
 
 import IncorrectSound from "src/assets/sounds/incorrect.mp3?url";
@@ -91,7 +91,7 @@ export default function QuizFloatingPanel({
   activity: { answerInputRef, submitAnswer, userGuessTally, giveHint, skipCountry },
 }: {
   shouldShow: boolean;
-  activity: ReturnType<typeof useCountryQuiz>;
+  activity: ReturnType<typeof useQuizInput>;
 }) {
   const onShakeStart = useCallback(() => {
     if (!answerInputRef.current) return;

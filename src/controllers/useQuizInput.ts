@@ -3,7 +3,7 @@ import { useUserGuessRecordContext } from "src/contexts/GuessRecordContext";
 import { useTally } from "src/hooks/useTally";
 import { useInputField } from "src/hooks/useInputField";
 
-export function useCountryQuiz(showNextCountry: () => NullableCountryData, setError: (error: Error) => void) {
+export function useQuizInput(showNextCountry: () => NullableCountryData, setError: (error: Error) => void) {
   const { storedCountry: countryCorrectAnswer, compareStoredCountry: checkAnswer } = useCountryStore();
   const {
     inputRef: answerInputRef,
@@ -11,7 +11,7 @@ export function useCountryQuiz(showNextCountry: () => NullableCountryData, setEr
     focusInputField: focusAnswerInputField,
   } = useInputField();
   const { pushGuessToHistory, lastGuess, updateCountryStats } = useUserGuessRecordContext();
-  const { tally: userGuessTally, incrementTally: incrementTriesTally, resetTally: resetTriesTally } = useTally();
+  const { tally: userGuessTally, upTally: incrementTriesTally, resetTally: resetTriesTally } = useTally();
 
   const giveHint = () => {
     if (countryCorrectAnswer.data) {

@@ -3,7 +3,7 @@ import { useState } from "react";
 export function useTally() {
   const [tally, setTally] = useState(0);
 
-  function incrementTally() {
+  function upTally() {
     setTally((prev) => prev + 1);
   }
 
@@ -11,5 +11,5 @@ export function useTally() {
     setTally(0);
   }
 
-  return { tally, incrementTally, resetTally };
+  return { tally, upTally, resetTally };
 }

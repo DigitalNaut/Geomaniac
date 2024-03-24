@@ -15,8 +15,8 @@ type PageInfo = {
   ns: number;
   title: string;
   extract: string;
-  thumbnail: Image;
-  original: Image;
+  thumbnail?: Image;
+  original?: Image;
   fullurl: string;
 };
 
@@ -26,7 +26,7 @@ interface Query {
   pages: Pages;
 }
 
-declare interface WikidataSummaryResponse {
+export interface WikidataSummaryResponse {
   batchcomplete: string;
   query: Query;
 }
