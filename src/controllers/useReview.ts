@@ -52,9 +52,12 @@ export function useReview(): IActivity & {
 
   const setCurrentCountry = useCallback(
     (countryA3: string) => {
-      dispatch(changeCurrentCountry({ countryA3, activityType }));
-      liftToSearchParams("country", countryA3);
-      return countryCatalog[countryA3];
+      const countryData = dispatch(changeCurrentCountry({ countryA3, activityType }));
+
+      if (!countryData) return null;
+
+      liftToSearchParams("country", countryData.GU_A3);
+      return countryData;
     },
     [dispatch, liftToSearchParams],
   );
@@ -77,8 +80,6 @@ export function useReview(): IActivity & {
     [setURLSearchParams],
   );
 
-  const getCountryFromParams = useCallback(() => searchParams.get("country"), [searchParams]);
-
   const reset = useCallback(() => {
     dispatch(resetActivityAction(activityType));
     deleteFromSearchParams("country");
@@ -89,23 +90,26 @@ export function useReview(): IActivity & {
       return activityState[activityType].currentCountry;
     }
 
-    const a3 = getCountryFromParams();
-    if (!a3) {
+    const countryInUrl = searchParams.get("country");
+
+    if (!countryInUrl) {
       return nextCountry();
     }
-    if (a3.length === 0) {
+
+    if (countryInUrl.length === 0) {
       deleteFromSearchParams("country");
+
       return nextCountry();
     }
 
-    if (isCountryInFilters(a3)) {
+    if (isCountryInFilters(countryInUrl)) {
       return nextCountry();
     }
 
-    return setCurrentCountry(a3);
+    return setCurrentCountry(countryInUrl);
   }, [
     currentActivity.currentCountry,
-    getCountryFromParams,
+    searchParams,
     isCountryInFilters,
     setCurrentCountry,
     activityState,
