@@ -83,7 +83,7 @@ const labelVariants: Variants = {
   exit: {
     height: 0,
     opacity: 0,
-    onAnimationEnd: () => ({ display: "none" }),
+    transitionEnd: { display: "none" },
   },
 };
 
