@@ -1,10 +1,9 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
 import {
   addVisitedCountry,
   changeCurrentCountry,
-  countryCatalog,
   getNextCountry,
   resetActivity as resetActivityAction,
 } from "src/store/CountryStore/slice";
@@ -120,6 +119,14 @@ export function useReview(): IActivity & {
   const finish = useCallback(() => {
     deleteFromSearchParams("country");
   }, [deleteFromSearchParams]);
+
+  useEffect(
+    function setCountryFromUrl() {
+      const countryInUrl = searchParams.get("country");
+      if (countryInUrl) start();
+    },
+    [searchParams, start],
+  );
 
   return {
     nextCountry,

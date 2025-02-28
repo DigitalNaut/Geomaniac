@@ -197,6 +197,7 @@ const countryStoreSlice = createSlice({
 
       activityState.previousCountry = activityState.currentCountry;
       activityState.currentCountry = countryA3 ? countryCatalog[countryA3] : null;
+      activityState.currentContinent = activityState.currentCountry?.CONTINENT || null;
     },
 
     clearVisitedCountries(state, { payload: activityType }: PayloadAction<ActivityType>) {
