@@ -86,7 +86,7 @@ export function useReview(): IActivity & {
 
   const start = useCallback(() => {
     if (currentActivity.currentCountry) {
-      return activityState[activityType].currentCountry;
+      return currentActivity.currentCountry;
     }
 
     const countryInUrl = searchParams.get("country");

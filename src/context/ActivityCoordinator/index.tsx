@@ -99,12 +99,12 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     (continent?: string | null, fitToView = true) => {
       if (!continent || continent.length === 0) return;
 
-      const bounds = continentBoundsCatalog[continent];
+      const continentBounds = continentBoundsCatalog[continent];
 
       if (fitToView) {
-        fitTo(bounds);
+        fitTo(continentBounds);
       } else {
-        panInside(bounds);
+        panInside(continentBounds);
       }
     },
     [fitTo, panInside],
@@ -227,8 +227,6 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   }, [activity, clickQuiz, inputQuiz, review]);
 
   useActivityTracker(() => {
-    if (!activity) return;
-
     focusViewportContinent(currentContinent);
   });
 

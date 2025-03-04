@@ -1,5 +1,5 @@
 import type { LeafletMouseEventHandlerFn } from "leaflet";
-import type { PropsWithChildren, SVGAttributes } from "react";
+import type { SVGAttributes } from "react";
 import { Fragment, useCallback, useMemo } from "react";
 
 import SvgMap from "src/components/common/SvgMap";
@@ -45,54 +45,51 @@ type SvgMapPaths = {
     : never]: SVGPathElement[];
 };
 
-function WithWaveAnimationDefs({ children }: PropsWithChildren) {
+function WithWaveAnimationDefs() {
   return (
-    <>
-      <defs>
-        <linearGradient id="gradient" colorInterpolation="linearRGB">
-          <stop offset="0%" stopColor="white" stopOpacity="0%" />
-          <stop offset="95%" stopColor="white" stopOpacity="25%" />
-          <stop offset="100%" stopColor="white" stopOpacity="0%" />
-        </linearGradient>
-        <rect id="line" width="4" height="32" fill="url(#gradient)" stroke="none" />
-        <pattern id="waves" width="8" height="32" patternUnits="userSpaceOnUse" patternTransform="rotate(45 50 50)">
-          <rect id="bg" className="fill-none stroke-none" x="0" y="0" width="8" height="32" />
-          <g>
-            <animateTransform
-              attributeName="transform"
-              type="translate"
-              from="1"
-              to="9"
-              dur="1s"
-              repeatCount="indefinite"
-            />
-            <use xlinkHref="#line" />
-            <use xlinkHref="#line" x="-8" />
-          </g>
-        </pattern>
+    <defs>
+      <linearGradient id="gradient" colorInterpolation="linearRGB">
+        <stop offset="0%" stopColor="white" stopOpacity="0%" />
+        <stop offset="95%" stopColor="white" stopOpacity="25%" />
+        <stop offset="100%" stopColor="white" stopOpacity="0%" />
+      </linearGradient>
+      <rect id="line" width="4" height="32" fill="url(#gradient)" stroke="none" />
+      <pattern id="waves" width="8" height="32" patternUnits="userSpaceOnUse" patternTransform="rotate(45 50 50)">
+        <rect id="bg" className="fill-none stroke-none" x="0" y="0" width="8" height="32" />
+        <g>
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            from="1"
+            to="9"
+            dur="1s"
+            repeatCount="indefinite"
+          />
+          <use xlinkHref="#line" />
+          <use xlinkHref="#line" x="-8" />
+        </g>
+      </pattern>
 
-        <circle width="9" height="9" r="1" stroke="none" className="fill-white/[6%]" />
-        <pattern
-          id="land"
-          patternUnits="userSpaceOnUse"
-          opacity="0.5"
-          width="9"
-          height="9"
-          patternTransform="scale(0.25) rotate(45 3 3)"
-        >
-          <ellipse rx="0.55" ry="0.25" cx="2" cy="2" stroke="none" className="fill-white/[6%]" />
-          <ellipse rx="0.25" ry="0.55" cx="5" cy="2" stroke="none" className="fill-white/[9%]" />
-          <ellipse rx="0.55" ry="0.25" cx="8" cy="2" stroke="none" className="fill-white/[6%]" />
-          <ellipse rx="0.25" ry="0.55" cx="2" cy="5" stroke="none" className="fill-white/[9%]" />
-          <ellipse rx="0.55" ry="0.25" cx="5" cy="5" stroke="none" className="fill-white/[6%]" />
-          <ellipse rx="0.25" ry="0.55" cx="8" cy="5" stroke="none" className="fill-white/[9%]" />
-          <ellipse rx="0.55" ry="0.25" cx="2" cy="8" stroke="none" className="fill-white/[6%]" />
-          <ellipse rx="0.25" ry="0.55" cx="5" cy="8" stroke="none" className="fill-white/[9%]" />
-          <ellipse rx="0.55" ry="0.25" cx="8" cy="8" stroke="none" className="fill-white/[6%]" />
-        </pattern>
-      </defs>
-      {children}
-    </>
+      <circle width="9" height="9" r="1" stroke="none" className="fill-white/[6%]" />
+      <pattern
+        id="land"
+        patternUnits="userSpaceOnUse"
+        opacity="0.5"
+        width="9"
+        height="9"
+        patternTransform="scale(0.25) rotate(45 3 3)"
+      >
+        <ellipse rx="0.55" ry="0.25" cx="2" cy="2" stroke="none" className="fill-white/[6%]" />
+        <ellipse rx="0.25" ry="0.55" cx="5" cy="2" stroke="none" className="fill-white/[9%]" />
+        <ellipse rx="0.55" ry="0.25" cx="8" cy="2" stroke="none" className="fill-white/[6%]" />
+        <ellipse rx="0.25" ry="0.55" cx="2" cy="5" stroke="none" className="fill-white/[9%]" />
+        <ellipse rx="0.55" ry="0.25" cx="5" cy="5" stroke="none" className="fill-white/[6%]" />
+        <ellipse rx="0.25" ry="0.55" cx="8" cy="5" stroke="none" className="fill-white/[9%]" />
+        <ellipse rx="0.55" ry="0.25" cx="2" cy="8" stroke="none" className="fill-white/[6%]" />
+        <ellipse rx="0.25" ry="0.55" cx="5" cy="8" stroke="none" className="fill-white/[9%]" />
+        <ellipse rx="0.55" ry="0.25" cx="8" cy="8" stroke="none" className="fill-white/[6%]" />
+      </pattern>
+    </defs>
   );
 }
 
@@ -183,8 +180,6 @@ function useZoomAdjustedLineStroke() {
 
 /**
  * SVG map implementation for countries
- * @param param0
- * @returns
  */
 export function CountrySvgMap({
   hidden,
@@ -235,34 +230,32 @@ export function CountrySvgMap({
         <CountryPath key={index} path={path} className={colorTheme.country.activeStyle} style={style} />
       ))}
 
-      {highlightPaths.length > 0 && (
-        <WithWaveAnimationDefs>
-          {highlightPaths.map((path) => (
-            <Fragment key={path.id}>
-              <CountryPath
-                path={path}
-                className={colorTheme.country.highlightStyle}
-                style={{ strokeWidth: scaleByZoom(2) }}
-              />
+      {highlightPaths.length > 0 && <WithWaveAnimationDefs />}
 
-              <CountryPath
-                path={path}
-                pointerEvents="none"
-                className="fill-[url(#land)] stroke-none hover:fill-lime-600/30"
-              />
+      {highlightPaths.map((path) => (
+        <Fragment key={path.id}>
+          <CountryPath
+            path={path}
+            className={colorTheme.country.highlightStyle}
+            style={{ strokeWidth: scaleByZoom(2) }}
+          />
 
-              <CountryPath
-                path={path}
-                pointerEvents="none"
-                className="animate-scrollDash fill-lime-500 [stroke-dasharray:32] [stroke-dashoffset:8] hover:animate-none hover:fill-[url(#waves)] hover:stroke-white hover:[stroke-dasharray:0]"
-                style={{
-                  strokeWidth: scaleByZoom(4),
-                }}
-              />
-            </Fragment>
-          ))}
-        </WithWaveAnimationDefs>
-      )}
+          <CountryPath
+            path={path}
+            pointerEvents="none"
+            className="fill-[url(#land)] stroke-none hover:fill-lime-600/30"
+          />
+
+          <CountryPath
+            path={path}
+            pointerEvents="none"
+            className="animate-scrollDash fill-lime-500 [stroke-dasharray:32] [stroke-dashoffset:8] hover:animate-none hover:fill-[url(#waves)] hover:stroke-white hover:[stroke-dasharray:0]"
+            style={{
+              strokeWidth: scaleByZoom(4),
+            }}
+          />
+        </Fragment>
+      ))}
     </SvgMap>
   );
 }

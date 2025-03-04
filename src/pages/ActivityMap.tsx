@@ -105,10 +105,7 @@ function MapLabel({
 }) {
   const countryData = useMemo(() => countryCatalog[country], [country]);
   const position = useMemo(() => projectFn?.(getLabelCoordinates(countryData)), [countryData, projectFn]);
-  const sovereignt = useMemo(
-    () => (countryData.GEOUNIT !== countryData.SOVEREIGNT ? countryData.SOVEREIGNT : null),
-    [countryData],
-  );
+  const sovereignt = useMemo(() => (countryData.ADM0_DIF ? countryData.SOVEREIGNT : null), [countryData]);
 
   if (!position) return null;
 
@@ -224,25 +221,33 @@ function ActivityMap({
   const [mapPixelPosition, setMapPixelPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const updateSvgLabelPositions = useCallback(() => {
+    if (!map) return;
+
+    const minBounds = map.getPixelBounds().min;
+    if (!minBounds) return;
+
     setMapPixelPosition({
-      top: map?.getPixelBounds().min?.y ?? 0,
-      left: map?.getPixelBounds().min?.x ?? 0,
+      top: minBounds.y,
+      left: minBounds.x,
     });
   }, [map]);
 
-  useEffect(() => {
-    if (map) {
-      map.addEventListener("move", updateSvgLabelPositions);
-      map.addEventListener("zoomanim", updateSvgLabelPositions);
-    }
-
-    return () => {
+  useEffect(
+    function manageSvgLabelPositions() {
       if (map) {
-        map.removeEventListener("move", updateSvgLabelPositions);
-        map.removeEventListener("zoomanim", updateSvgLabelPositions);
+        map.addEventListener("move", updateSvgLabelPositions);
+        map.addEventListener("zoomanim", updateSvgLabelPositions);
       }
-    };
-  }, [map, updateSvgLabelPositions]);
+
+      return () => {
+        if (map) {
+          map.removeEventListener("move", updateSvgLabelPositions);
+          map.removeEventListener("zoomanim", updateSvgLabelPositions);
+        }
+      };
+    },
+    [map, updateSvgLabelPositions],
+  );
 
   return (
     <div
