@@ -91,6 +91,8 @@ export function useQuizInput(): IActivity & {
     dispatch(resetActivity(activityType));
   }, [dispatch]);
 
+  const resume = () => void 0;
+
   return {
     inputRef,
     submitInput,
@@ -101,5 +103,6 @@ export function useQuizInput(): IActivity & {
     start,
     finish,
     reset,
+    resume,
   };
 }

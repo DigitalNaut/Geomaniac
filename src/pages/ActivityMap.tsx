@@ -237,6 +237,8 @@ function ActivityMap({
       if (map) {
         map.addEventListener("move", updateSvgLabelPositions);
         map.addEventListener("zoomanim", updateSvgLabelPositions);
+
+        updateSvgLabelPositions();
       }
 
       return () => {

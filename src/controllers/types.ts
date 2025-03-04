@@ -5,4 +5,5 @@ export type IActivity = {
   start: () => CountryData | null;
   finish: () => void;
   reset: () => void;
+  resume: () => void;
 };

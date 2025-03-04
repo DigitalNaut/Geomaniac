@@ -55,5 +55,7 @@ export function useQuizClick(): IActivity & {
 
   const reset = () => void dispatch(resetActivity(activityType));
 
-  return { giveHint, submitClick, userGuessTally, nextCountry, start, finish, reset };
+  const resume = () => void 0;
+
+  return { giveHint, submitClick, userGuessTally, nextCountry, start, finish, reset, resume };
 }

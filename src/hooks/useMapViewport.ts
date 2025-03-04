@@ -1,5 +1,5 @@
 import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { useMapContext } from "src/context/Map/hook";
 import { useSettings } from "./useSettings";
@@ -29,36 +29,45 @@ export function useMapViewport({ options }: { options?: Options } = {}) {
     map.setMaxBounds(paddedBounds);
   }, [map, padding]);
 
-  async function panTo(
-    destination: LatLngExpression | null,
-    { animate = true, duration = useReducedMotion ? 0.05 : 0.25, delayMs = 0 } = {},
-  ) {
-    if (!map || !destination) return;
+  const panTo = useCallback(
+    async function panTo(
+      destination: LatLngExpression | null,
+      { animate = true, duration = useReducedMotion ? 0.05 : 0.25, delayMs = 0 } = {},
+    ) {
+      if (!map || !destination) return;
 
-    if (delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
+      if (delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
 
-    map.panTo(destination, {
-      animate,
-      duration,
-    });
-  }
+      map.panTo(destination, {
+        animate,
+        duration,
+      });
+    },
+    [map, useReducedMotion],
+  );
 
-  function fitTo(bounds: LatLngBoundsExpression, { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {}) {
-    if (!map) return;
+  const fitTo = useCallback(
+    function fitTo(bounds: LatLngBoundsExpression, { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {}) {
+      if (!map) return;
 
-    map.fitBounds(bounds, { animate, duration });
-  }
+      map.fitBounds(bounds, { animate, duration });
+    },
+    [map, useReducedMotion],
+  );
 
-  function panInside(
-    bounds: LatLngBoundsExpression,
-    { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {},
-  ) {
-    if (!map) return;
+  const panInside = useCallback(
+    function panInside(
+      bounds: LatLngBoundsExpression,
+      { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {},
+    ) {
+      if (!map) return;
 
-    map.panInsideBounds(bounds, { animate, duration });
-  }
+      map.panInsideBounds(bounds, { animate, duration });
+    },
+    [map, useReducedMotion],
+  );
 
   function resetViewport() {
     if (!map) return;

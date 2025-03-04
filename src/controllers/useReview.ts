@@ -111,7 +111,6 @@ export function useReview(): IActivity & {
     searchParams,
     isCountryInFilters,
     setCurrentCountry,
-    activityState,
     nextCountry,
     deleteFromSearchParams,
   ]);
@@ -119,6 +118,10 @@ export function useReview(): IActivity & {
   const finish = useCallback(() => {
     deleteFromSearchParams("country");
   }, [deleteFromSearchParams]);
+
+  const resume = useCallback(() => {
+    if (currentActivity.currentCountry) liftToSearchParams("country", currentActivity.currentCountry.GU_A3);
+  }, [currentActivity.currentCountry, liftToSearchParams]);
 
   useEffect(
     function setCountryFromUrl() {
@@ -135,5 +138,6 @@ export function useReview(): IActivity & {
     finish,
     visitedCountries,
     reset,
+    resume,
   };
 }

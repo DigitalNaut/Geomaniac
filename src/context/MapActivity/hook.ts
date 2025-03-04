@@ -26,7 +26,9 @@ function objectToHash(params: Readonly<Record<string, string | undefined>>) {
   return params ? `/${params.activity}/${params.kind}` : "/";
 }
 
-export function useActivityTracker(onChange: (activity: ActivityType | null) => void) {
+export function useActivityTracker(
+  onChange: (prevActivity: ActivityType | null, activity: ActivityType | null) => void,
+) {
   const params = useParams();
   const prevActivity = useRef<ActivityType | null>(null);
 
@@ -36,10 +38,10 @@ export function useActivityTracker(onChange: (activity: ActivityType | null) => 
       const currentActivityHash = params?.activity ? objectToHash(params) : "/";
 
       if (previousActivityHash !== currentActivityHash) {
-        const validActivity = isValidActivity(params) ? params : null;
-        prevActivity.current = validActivity;
-
-        onChange(validActivity);
+        const currentValidActivity = isValidActivity(params) ? params : null;
+        const prev = prevActivity.current;
+        prevActivity.current = currentValidActivity;
+        onChange(prev, currentValidActivity);
       }
     },
     [onChange, params],

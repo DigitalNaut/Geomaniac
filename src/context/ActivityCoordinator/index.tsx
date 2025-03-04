@@ -226,8 +226,19 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     strategies[activity.kind]?.();
   }, [activity, clickQuiz, inputQuiz, review]);
 
-  useActivityTracker(() => {
-    focusViewportContinent(currentContinent);
+  useActivityTracker((prevActivity, currentActivity) => {
+    const isNewActivity = prevActivity === null && currentActivity !== null;
+    if (isNewActivity) {
+      const strategies: ActivityKindStrategy = {
+        countries: () => review.resume(),
+        typing: () => inputQuiz.resume(),
+        pointing: () => clickQuiz.resume(),
+      };
+
+      strategies[currentActivity.kind]?.();
+
+      focusViewportContinent(currentContinent);
+    }
   });
 
   useEffect(
