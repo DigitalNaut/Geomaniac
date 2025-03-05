@@ -1,4 +1,4 @@
-import type { LeafletMouseEventHandlerFn } from "leaflet";
+import type { LeafletEventHandlerFnMap } from "leaflet";
 import type { SVGAttributes } from "react";
 import { Fragment, useCallback, useMemo } from "react";
 
@@ -97,8 +97,12 @@ function useCountrySvgMap(
   { activeList, highlightList, visitedList }: ActiveSvgMapLists,
   {
     onClick,
+    onMouseOver,
+    onMouseOut,
   }: {
     onClick?: (a3: string) => void;
+    onMouseOver?: (a3: string) => void;
+    onMouseOut?: (a3: string) => void;
   },
 ) {
   const attributes = useSvgAttributes(mapSvg, ["width", "height", "viewBox"]);
@@ -138,16 +142,34 @@ function useCountrySvgMap(
     [attributes.paths, activeList, highlightList, visitedList],
   );
 
-  const click: LeafletMouseEventHandlerFn = ({ originalEvent }) => {
-    const { target } = originalEvent;
-    if (!(target instanceof Element)) return;
+  const eventHandlers: LeafletEventHandlerFnMap = {
+    click: ({ originalEvent }) => {
+      const { target } = originalEvent;
+      if (!(target instanceof Element)) return;
 
-    const a3 = target.getAttribute("data-a3");
+      const a3 = target.getAttribute("data-a3");
 
-    if (a3) onClick?.(a3);
+      if (a3) onClick?.(a3);
+    },
+    mouseover: ({ originalEvent }) => {
+      const { target } = originalEvent;
+      if (!(target instanceof Element)) return;
+
+      const a3 = target.getAttribute("data-a3");
+
+      if (a3) onMouseOver?.(a3);
+    },
+    mouseout: ({ originalEvent }) => {
+      const { target } = originalEvent;
+      if (!(target instanceof Element)) return;
+
+      const a3 = target.getAttribute("data-a3");
+
+      if (a3) onMouseOut?.(a3);
+    },
   };
 
-  return { paths, attributes, eventHandlers: { click } };
+  return { paths, attributes, eventHandlers };
 }
 
 function CountryPath({
@@ -185,12 +207,16 @@ export function CountrySvgMap({
   hidden,
   colorTheme,
   onClick,
+  onMouseOver,
+  onMouseOut,
   className,
   lists,
 }: {
   hidden?: boolean;
   colorTheme: SvgMapColorTheme;
   onClick?: (a3: string) => void;
+  onMouseOver?: (a3: string) => void;
+  onMouseOut?: (a3: string) => void;
   className?: string;
   lists: ActiveSvgMapLists;
 }) {
@@ -198,15 +224,13 @@ export function CountrySvgMap({
     attributes: { width, height, viewBox },
     paths: { activePaths, highlightPaths, visitedPaths, inactivePaths },
     eventHandlers,
-  } = useCountrySvgMap(lists, { onClick });
+  } = useCountrySvgMap(lists, { onClick, onMouseOver, onMouseOut });
 
   const { scaleByZoom } = useZoomAdjustedLineStroke();
 
   const style = useMemo(() => {
     return { strokeWidth: scaleByZoom(3) };
   }, [scaleByZoom]);
-
-  // Handle line drawing
 
   if (hidden) return null;
 
