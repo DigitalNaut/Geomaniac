@@ -1,5 +1,5 @@
 import type { LeafletEventHandlerFnMap } from "leaflet";
-import type { SVGAttributes } from "react";
+import type { MouseEventHandler, SVGAttributes } from "react";
 import { Fragment, useCallback, useMemo } from "react";
 
 import SvgMap from "src/components/common/SvgMap";
@@ -97,12 +97,12 @@ function useCountrySvgMap(
   { activeList, highlightList, visitedList }: ActiveSvgMapLists,
   {
     onClick,
-    onMouseOver,
-    onMouseOut,
+    onMouseEnter,
+    onMouseLeave,
   }: {
     onClick?: (a3: string) => void;
-    onMouseOver?: (a3: string) => void;
-    onMouseOut?: (a3: string) => void;
+    onMouseEnter?: (a3: string) => void;
+    onMouseLeave?: (a3: string) => void;
   },
 ) {
   const attributes = useSvgAttributes(mapSvg, ["width", "height", "viewBox"]);
@@ -157,7 +157,7 @@ function useCountrySvgMap(
 
       const a3 = target.getAttribute("data-a3");
 
-      if (a3) onMouseOver?.(a3);
+      if (a3) onMouseEnter?.(a3);
     },
     mouseout: ({ originalEvent }) => {
       const { target } = originalEvent;
@@ -165,7 +165,7 @@ function useCountrySvgMap(
 
       const a3 = target.getAttribute("data-a3");
 
-      if (a3) onMouseOut?.(a3);
+      if (a3) onMouseLeave?.(a3);
     },
   };
 
@@ -207,16 +207,16 @@ export function CountrySvgMap({
   hidden,
   colorTheme,
   onClick,
-  onMouseOver,
-  onMouseOut,
+  onMouseEnter,
+  onMouseLeave,
   className,
   lists,
 }: {
   hidden?: boolean;
   colorTheme: SvgMapColorTheme;
   onClick?: (a3: string) => void;
-  onMouseOver?: (a3: string) => void;
-  onMouseOut?: (a3: string) => void;
+  onMouseEnter?: (a3: string) => void;
+  onMouseLeave?: (a3: string) => void;
   className?: string;
   lists: ActiveSvgMapLists;
 }) {
@@ -224,13 +224,23 @@ export function CountrySvgMap({
     attributes: { width, height, viewBox },
     paths: { activePaths, highlightPaths, visitedPaths, inactivePaths },
     eventHandlers,
-  } = useCountrySvgMap(lists, { onClick, onMouseOver, onMouseOut });
+  } = useCountrySvgMap(lists, { onClick, onMouseEnter, onMouseLeave });
 
   const { scaleByZoom } = useZoomAdjustedLineStroke();
 
   const style = useMemo(() => {
     return { strokeWidth: scaleByZoom(3) };
   }, [scaleByZoom]);
+
+  const handleMouseEnter: MouseEventHandler<SVGPathElement> = useCallback(
+    (path) => onMouseEnter?.(path.currentTarget.getAttribute("data-a3") ?? ""),
+    [onMouseEnter],
+  );
+
+  const handleMouseLeave: MouseEventHandler<SVGPathElement> = useCallback(
+    (path) => onMouseLeave?.(path.currentTarget.getAttribute("data-a3") ?? ""),
+    [onMouseLeave],
+  );
 
   if (hidden) return null;
 
@@ -243,15 +253,36 @@ export function CountrySvgMap({
       boundsAdjustment={manualBoundsAdjustment}
     >
       {inactivePaths.map((path, index) => (
-        <CountryPath key={index} path={path} className={colorTheme.country.inactiveStyle} style={style} />
+        <CountryPath
+          key={index}
+          className={colorTheme.country.inactiveStyle}
+          style={style}
+          path={path}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
       ))}
 
       {visitedPaths.map((path, index) => (
-        <CountryPath key={index} path={path} className={colorTheme.country.visitedStyle} style={style} />
+        <CountryPath
+          key={index}
+          className={colorTheme.country.visitedStyle}
+          style={style}
+          path={path}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
       ))}
 
       {activePaths.map((path, index) => (
-        <CountryPath key={index} path={path} className={colorTheme.country.activeStyle} style={style} />
+        <CountryPath
+          key={index}
+          className={colorTheme.country.activeStyle}
+          style={style}
+          path={path}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
       ))}
 
       {highlightPaths.length > 0 && <WithWaveAnimationDefs />}

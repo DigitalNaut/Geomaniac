@@ -92,6 +92,8 @@ function MapLabel({
   isCurrentCountry,
   mapPixelPosition: { top, left },
   onClick,
+  isHovered,
+  setHovered,
   projectFn,
 }: {
   country: string;
@@ -101,6 +103,8 @@ function MapLabel({
     top: number;
     left: number;
   };
+  isHovered: boolean;
+  setHovered: (country: string | null) => void;
   projectFn: Map["project"];
 }) {
   const countryData = useMemo(() => countryCatalog[country], [country]);
@@ -114,6 +118,7 @@ function MapLabel({
       className={cn(
         "absolute z-1000 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 [transition:opacity_0.25s_ease-in-out,_color_0.25s_ease-in-out,_background-color_0.25s_ease-out,_translate_0.25s_ease-in-out] hover:z-1500 hover:bg-slate-200/80 hover:text-base hover:text-slate-700 hover:opacity-100",
         {
+          "z-1500 bg-slate-200/80 text-base text-slate-700 opacity-100": isHovered,
           "z-1100 translate-y-[-64px] bg-white p-0 text-base text-slate-900 drop-shadow-md hover:bg-white/30 hover:opacity-25":
             isCurrentCountry,
         },
@@ -123,6 +128,8 @@ function MapLabel({
         transform: `translate(${position.x - left}px, ${position.y - top}px)`,
       }}
       onClick={onClick}
+      onMouseEnter={() => setHovered(country)}
+      onMouseLeave={() => setHovered(null)}
     >
       <AnimatePresence>
         {isCurrentCountry && (
@@ -158,6 +165,44 @@ function MapLabel({
       <div className={cn("px-1", { "px-1.5": isCurrentCountry })}>{countryData.GEOUNIT}</div>
     </div>
   );
+}
+
+function useMapPixelPosition() {
+  const { map } = useMapContext();
+  const [mapPixelPosition, setMapPixelPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  const updateSvgLabelPositions = useCallback(() => {
+    if (!map) return;
+
+    const minBounds = map.getPixelBounds().min;
+    if (!minBounds) return;
+
+    setMapPixelPosition({
+      top: minBounds.y,
+      left: minBounds.x,
+    });
+  }, [map]);
+
+  useEffect(
+    function manageSvgLabelPositions() {
+      if (map) {
+        map.addEventListener("move", updateSvgLabelPositions);
+        map.addEventListener("zoomanim", updateSvgLabelPositions);
+
+        updateSvgLabelPositions();
+      }
+
+      return () => {
+        if (map) {
+          map.removeEventListener("move", updateSvgLabelPositions);
+          map.removeEventListener("zoomanim", updateSvgLabelPositions);
+        }
+      };
+    },
+    [map, updateSvgLabelPositions],
+  );
+
+  return mapPixelPosition;
 }
 
 function ActivityMap({
@@ -218,38 +263,9 @@ function ActivityMap({
     };
   }, [activity?.kind, currentContinent, currentCountry, visitedList]);
 
-  const [mapPixelPosition, setMapPixelPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const mapPixelPosition = useMapPixelPosition();
 
-  const updateSvgLabelPositions = useCallback(() => {
-    if (!map) return;
-
-    const minBounds = map.getPixelBounds().min;
-    if (!minBounds) return;
-
-    setMapPixelPosition({
-      top: minBounds.y,
-      left: minBounds.x,
-    });
-  }, [map]);
-
-  useEffect(
-    function manageSvgLabelPositions() {
-      if (map) {
-        map.addEventListener("move", updateSvgLabelPositions);
-        map.addEventListener("zoomanim", updateSvgLabelPositions);
-
-        updateSvgLabelPositions();
-      }
-
-      return () => {
-        if (map) {
-          map.removeEventListener("move", updateSvgLabelPositions);
-          map.removeEventListener("zoomanim", updateSvgLabelPositions);
-        }
-      };
-    },
-    [map, updateSvgLabelPositions],
-  );
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
   return (
     <div
@@ -277,7 +293,13 @@ function ActivityMap({
           </>
         )}
 
-        <CountrySvgMap lists={mapLists} onClick={handleMapClick} colorTheme={colorTheme} />
+        <CountrySvgMap
+          lists={mapLists}
+          onClick={handleMapClick}
+          colorTheme={colorTheme}
+          onMouseEnter={(a3) => setHoveredCountry(a3)}
+          onMouseLeave={(a3) => (a3 === hoveredCountry ? setHoveredCountry(null) : null)}
+        />
 
         {activity?.activity === "review" &&
           map &&
@@ -286,6 +308,8 @@ function ActivityMap({
               key={country}
               mapPixelPosition={mapPixelPosition}
               onClick={() => handleMapClick(country)}
+              setHovered={setHoveredCountry}
+              isHovered={country === hoveredCountry}
               country={country}
               isCurrentCountry={country === currentCountry?.GU_A3}
               projectFn={(...rest) => map.project(...rest)}
