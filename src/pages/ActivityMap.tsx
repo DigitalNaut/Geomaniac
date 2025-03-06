@@ -93,7 +93,6 @@ function MapLabel({
   mapPixelPosition: { top, left },
   onClick,
   isHovered,
-  setHovered,
   projectFn,
 }: {
   country: string;
@@ -217,7 +216,7 @@ function ActivityMap({
   const {
     currentActivityState,
     handleMapClick,
-    visitedCountries: visitedList,
+    visitedCountries,
     guessTally,
     giveHint,
     inputRef,
@@ -259,9 +258,9 @@ function ActivityMap({
     return {
       activeList,
       highlightList,
-      visitedList,
+      visitedList: visitedCountries,
     };
-  }, [activity?.kind, currentContinent, currentCountry, visitedList]);
+  }, [activity?.kind, currentContinent, currentCountry, visitedCountries]);
 
   const mapPixelPosition = useMapPixelPosition();
 
@@ -303,7 +302,7 @@ function ActivityMap({
 
         {activity?.activity === "review" &&
           map &&
-          visitedList.map((country) => (
+          visitedCountries.map((country) => (
             <MapLabel
               key={country}
               mapPixelPosition={mapPixelPosition}
