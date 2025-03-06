@@ -108,14 +108,17 @@ function MapLabel({
 }) {
   const countryData = useMemo(() => countryCatalog[country], [country]);
   const position = useMemo(() => projectFn?.(getLabelCoordinates(countryData)), [countryData, projectFn]);
-  const sovereignt = useMemo(() => (countryData.ADM0_DIF ? countryData.SOVEREIGNT : null), [countryData]);
+  const sovereignt = useMemo(
+    () => (countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT),
+    [countryData],
+  );
 
   if (!position) return null;
 
   return (
     <div
       className={cn(
-        "absolute z-1000 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 [transition:opacity_0.25s_ease-in-out,_color_0.25s_ease-in-out,_background-color_0.25s_ease-out,_translate_0.25s_ease-in-out] hover:z-1500 hover:bg-slate-200/80 hover:text-base hover:text-slate-700 hover:opacity-100",
+        "pointer-events-none absolute z-1000 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 [transition:opacity_0.25s_ease-in-out,_color_0.25s_ease-in-out,_background-color_0.25s_ease-out,_translate_0.25s_ease-in-out] hover:z-1500 hover:bg-slate-200/80 hover:text-base hover:text-slate-700 hover:opacity-100",
         {
           "z-1500 bg-slate-200/80 text-base text-slate-700 opacity-100": isHovered,
           "z-1100 translate-y-[-64px] bg-white p-0 text-base text-slate-900 drop-shadow-md hover:bg-white/30 hover:opacity-25":
@@ -127,8 +130,6 @@ function MapLabel({
         transform: `translate(${position.x - left}px, ${position.y - top}px)`,
       }}
       onClick={onClick}
-      onMouseEnter={() => setHovered(country)}
-      onMouseLeave={() => setHovered(null)}
     >
       <AnimatePresence>
         {isCurrentCountry && (
