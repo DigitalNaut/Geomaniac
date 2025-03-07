@@ -88,23 +88,24 @@ const labelVariants: Variants = {
 };
 
 function CountryLabel({
-  country,
-  isCurrentCountry,
   mapPixelPosition: { top, left },
-  onClick,
-  isHovered,
-  projectFn,
+  state: { country, isCurrentCountry, isHovered },
+  actions: { onClick, setHovered, projectFn },
 }: {
-  country: string;
-  isCurrentCountry: boolean;
-  onClick: () => void;
   mapPixelPosition: {
     top: number;
     left: number;
   };
-  isHovered: boolean;
-  setHovered: (country: string | null) => void;
-  projectFn: Map["project"];
+  state: {
+    country: string;
+    isCurrentCountry: boolean;
+    isHovered: boolean;
+  };
+  actions: {
+    onClick: () => void;
+    setHovered: (country: string | null) => void;
+    projectFn: Map["project"];
+  };
 }) {
   const { countryData, position, sovereignt, admin } = useMemo(() => {
     const countryData = countryCatalog[country];
@@ -123,10 +124,10 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute z-1000 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 [transition:opacity_0.25s_ease-in-out,_color_0.25s_ease-in-out,_background-color_0.25s_ease-out,_translate_0.25s_ease-in-out] hover:z-1500 hover:bg-slate-200/80 hover:text-base hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 outline-0 outline-amber-500 [transition:opacity_250ms_ease-in-out_10ms,_color_250ms_ease-in-out_10ms,_background-color_250ms_ease-out_10ms,_translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
-          "z-1500 bg-slate-200/80 text-base text-slate-700 opacity-100": isHovered,
-          "z-1100 translate-y-[-64px] bg-white p-0 text-base text-slate-900 drop-shadow-md hover:bg-white/30 hover:opacity-25":
+          "z-401 bg-slate-200/80 text-slate-700 opacity-100": isHovered,
+          "z-400 translate-y-[-56px] bg-white p-0 text-slate-900 outline-1 drop-shadow-md hover:bg-white/30 hover:opacity-25":
             isCurrentCountry,
         },
       )}
@@ -135,50 +136,24 @@ function CountryLabel({
         transform: `translate(${position.x - left}px, ${position.y - top}px)`,
       }}
       onClick={onClick}
+      onMouseEnter={() => setHovered(country)}
+      onMouseLeave={() => setHovered(null)}
     >
       <AnimatePresence>
-        {/* {isCurrentCountry && ( */}
-        {
-          <>
-            <motion.div
-              className="bg-orange-700 px-1 text-xs text-white"
-              key="country-name"
-              variants={labelVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={{ duration: 0.25 }}
-            >
-              {countryData.SUBREGION}
-            </motion.div>
-            {sovereignt && (
-              <motion.div
-                className="bg-lime-700 px-1 text-xs text-white"
-                key="sovereignt-name"
-                variants={labelVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25 }}
-              >
-                {sovereignt}
-              </motion.div>
-            )}
-            {admin && (
-              <motion.div
-                className="bg-sky-600 px-1 text-xs text-white"
-                key="admin-name"
-                variants={labelVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25 }}
-              >
-                {admin}
-              </motion.div>
-            )}
-          </>
-        }
+        {isCurrentCountry && (
+          <motion.div
+            key="country-name"
+            variants={labelVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.25 }}
+          >
+            <div className="bg-amber-500 px-1 text-xs text-white">{countryData.SUBREGION}</div>
+            {sovereignt && <div className="bg-sky-600 px-1 text-xs text-white">{sovereignt}</div>}
+            {admin && <div className="bg-sky-500 px-1 text-xs text-white">{admin}</div>}
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <div className={cn("px-1", { "px-1.5": isCurrentCountry })}>{countryData.GEOUNIT}</div>
@@ -326,12 +301,16 @@ function ActivityMap({
             <CountryLabel
               key={country}
               mapPixelPosition={mapPixelPosition}
-              onClick={() => handleMapClick(country)}
-              setHovered={setHoveredCountry}
-              isHovered={country === hoveredCountry}
-              country={country}
-              isCurrentCountry={country === currentCountry?.GU_A3}
-              projectFn={(...rest) => map.project(...rest)}
+              state={{
+                country,
+                isCurrentCountry: country === currentCountry?.GU_A3,
+                isHovered: country === hoveredCountry,
+              }}
+              actions={{
+                onClick: () => handleMapClick(country),
+                projectFn: (point, zoom) => map.project(point, zoom),
+                setHovered: setHoveredCountry,
+              }}
             />
           ))}
       </LeafletMapFrame>
