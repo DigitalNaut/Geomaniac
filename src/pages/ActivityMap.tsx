@@ -87,7 +87,7 @@ const labelVariants: Variants = {
   },
 };
 
-function MapLabel({
+function CountryLabel({
   country,
   isCurrentCountry,
   mapPixelPosition: { top, left },
@@ -106,12 +106,17 @@ function MapLabel({
   setHovered: (country: string | null) => void;
   projectFn: Map["project"];
 }) {
-  const countryData = useMemo(() => countryCatalog[country], [country]);
-  const position = useMemo(() => projectFn?.(getLabelCoordinates(countryData)), [countryData, projectFn]);
-  const sovereignt = useMemo(
-    () => (countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT),
-    [countryData],
-  );
+  const { countryData, position, sovereignt, admin } = useMemo(() => {
+    const countryData = countryCatalog[country];
+    const position = projectFn?.(getLabelCoordinates(countryData));
+
+    const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
+
+    const admin =
+      countryData.ADMIN === sovereignt || countryData.ADMIN === countryData.GEOUNIT ? null : countryData.ADMIN;
+
+    return { countryData, position, sovereignt, admin };
+  }, [country, projectFn]);
 
   if (!position) return null;
 
@@ -132,10 +137,11 @@ function MapLabel({
       onClick={onClick}
     >
       <AnimatePresence>
-        {isCurrentCountry && (
+        {/* {isCurrentCountry && ( */}
+        {
           <>
             <motion.div
-              className="bg-slate-700 px-1 text-xs text-white"
+              className="bg-orange-700 px-1 text-xs text-white"
               key="country-name"
               variants={labelVariants}
               initial="initial"
@@ -147,7 +153,7 @@ function MapLabel({
             </motion.div>
             {sovereignt && (
               <motion.div
-                className="bg-slate-500 px-1 text-xs text-white"
+                className="bg-lime-700 px-1 text-xs text-white"
                 key="sovereignt-name"
                 variants={labelVariants}
                 initial="initial"
@@ -158,8 +164,21 @@ function MapLabel({
                 {sovereignt}
               </motion.div>
             )}
+            {admin && (
+              <motion.div
+                className="bg-sky-600 px-1 text-xs text-white"
+                key="admin-name"
+                variants={labelVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                {admin}
+              </motion.div>
+            )}
           </>
-        )}
+        }
       </AnimatePresence>
 
       <div className={cn("px-1", { "px-1.5": isCurrentCountry })}>{countryData.GEOUNIT}</div>
@@ -304,7 +323,7 @@ function ActivityMap({
         {activity?.activity === "review" &&
           map &&
           visitedCountries.map((country) => (
-            <MapLabel
+            <CountryLabel
               key={country}
               mapPixelPosition={mapPixelPosition}
               onClick={() => handleMapClick(country)}
