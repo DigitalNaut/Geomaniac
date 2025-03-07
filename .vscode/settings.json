@@ -76,4 +76,7 @@
     }
   },
   "svg.preview.background": "editor",
+  "cSpell.ignoreWords": [
+    "zoomanim"
+  ],
 }
