@@ -33,6 +33,7 @@ import { useError } from "src/hooks/common/useError";
 import { useGuessRecord } from "src/hooks/useGuessRecord";
 import { useMapViewport } from "src/hooks/useMapViewport";
 import { countriesByContinent, countryCatalog } from "src/store/CountryStore/slice";
+import type { CountryData } from "src/store/CountryStore/types";
 import type { ActivityMode, ActivityType } from "src/types/map-activity";
 import { getLabelCoordinates } from "src/utils/features";
 import { cn } from "src/utils/styles";
@@ -89,26 +90,29 @@ const labelVariants: Variants = {
 
 function CountryLabel({
   mapPixelPosition: { top, left },
-  state: { country, isCurrentCountry, isHovered },
-  actions: { onClick, setHovered, projectFn },
+  state: { labelGeounit, isCurrentCountry, geounitHovered, adminHovered, regionHovered, sovereigntHovered },
+  actions: { onClick, changeHovered, projectFn },
 }: {
   mapPixelPosition: {
     top: number;
     left: number;
   };
   state: {
-    country: string;
+    labelGeounit: string;
     isCurrentCountry: boolean;
-    isHovered: boolean;
+    geounitHovered?: string;
+    regionHovered?: string;
+    adminHovered?: string;
+    sovereigntHovered?: string;
   };
   actions: {
     onClick: () => void;
-    setHovered: (country: string | null) => void;
+    changeHovered: (a3: string | undefined) => void;
     projectFn: Map["project"];
   };
 }) {
   const { countryData, position, sovereignt, admin } = useMemo(() => {
-    const countryData = countryCatalog[country];
+    const countryData = countryCatalog[labelGeounit];
     const position = projectFn?.(getLabelCoordinates(countryData));
 
     const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
@@ -117,27 +121,31 @@ function CountryLabel({
       countryData.ADMIN === sovereignt || countryData.ADMIN === countryData.GEOUNIT ? null : countryData.ADMIN;
 
     return { countryData, position, sovereignt, admin };
-  }, [country, projectFn]);
+  }, [labelGeounit, projectFn]);
 
   if (!position) return null;
 
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-lg text-center text-xs text-white/30 outline-0 outline-amber-500 [transition:opacity_250ms_ease-in-out_10ms,_color_250ms_ease-in-out_10ms,_background-color_250ms_ease-out_10ms,_translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-amber-500 [transition:opacity_250ms_ease-in-out_10ms,_color_250ms_ease-in-out_10ms,_background-color_250ms_ease-out_10ms,_translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
-          "z-401 bg-slate-200/80 text-slate-700 opacity-100": isHovered,
+          "bg-amber-500 text-white drop-shadow-md": regionHovered === countryData.SUBREGION,
+          "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
+          "bg-sky-500 text-slate-200": adminHovered === countryData.ADMIN,
+          "z-401 bg-slate-200/80 text-slate-700 opacity-100": geounitHovered === labelGeounit,
           "z-400 translate-y-[-56px] bg-white p-0 text-slate-900 outline-1 drop-shadow-md hover:bg-white/30 hover:opacity-25":
             isCurrentCountry,
         },
       )}
-      key={country}
+      title={`Soverignt: ${countryData.SOVEREIGNT}\nAdmin: ${countryData.ADMIN}\nGeounit: ${countryData.GEOUNIT}`}
+      key={labelGeounit}
       style={{
         transform: `translate(${position.x - left}px, ${position.y - top}px)`,
       }}
       onClick={onClick}
-      onMouseEnter={() => setHovered(country)}
-      onMouseLeave={() => setHovered(null)}
+      onMouseEnter={() => changeHovered(labelGeounit)}
+      onMouseLeave={() => changeHovered(undefined)}
     >
       <AnimatePresence>
         {isCurrentCountry && (
@@ -150,8 +158,8 @@ function CountryLabel({
             transition={{ duration: 0.25 }}
           >
             <div className="bg-amber-500 px-1 text-xs text-white">{countryData.SUBREGION}</div>
-            {sovereignt && <div className="bg-sky-600 px-1 text-xs text-white">{sovereignt}</div>}
-            {admin && <div className="bg-sky-500 px-1 text-xs text-white">{admin}</div>}
+            <div className="bg-lime-600 p-0.5 px-1 text-xs text-white">{sovereignt}</div>
+            <div className="bg-sky-500 p-0.5 px-1 text-xs text-white">{admin}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -197,6 +205,18 @@ function useMapPixelPosition() {
   );
 
   return mapPixelPosition;
+}
+
+function useHoveredCountry() {
+  const [hovered, setHovered] = useState<CountryData | undefined>(undefined);
+
+  const changeHovered = useCallback(
+    (a3: string | undefined) => a3 && a3 !== hovered?.GU_A3 && setHovered(countryCatalog[a3]),
+    [hovered],
+  );
+  const resetHovered = useCallback((a3: string) => (a3 === hovered?.GU_A3 ? setHovered(undefined) : null), [hovered]);
+
+  return { hovered, changeHovered, resetHovered };
 }
 
 function ActivityMap({
@@ -259,7 +279,7 @@ function ActivityMap({
 
   const mapPixelPosition = useMapPixelPosition();
 
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const { hovered, changeHovered, resetHovered } = useHoveredCountry();
 
   return (
     <div
@@ -291,8 +311,8 @@ function ActivityMap({
           lists={mapLists}
           onClick={handleMapClick}
           colorTheme={colorTheme}
-          onMouseEnter={(a3) => setHoveredCountry(a3)}
-          onMouseLeave={(a3) => (a3 === hoveredCountry ? setHoveredCountry(null) : null)}
+          onMouseEnter={changeHovered}
+          onMouseLeave={resetHovered}
         />
 
         {activity?.activity === "review" &&
@@ -302,14 +322,17 @@ function ActivityMap({
               key={country}
               mapPixelPosition={mapPixelPosition}
               state={{
-                country,
-                isCurrentCountry: country === currentCountry?.GU_A3,
-                isHovered: country === hoveredCountry,
+                labelGeounit: country,
+                isCurrentCountry: currentCountry?.GU_A3 === country,
+                geounitHovered: hovered?.GU_A3,
+                adminHovered: currentCountry?.ADMIN,
+                regionHovered: currentCountry?.SUBREGION,
+                sovereigntHovered: currentCountry?.SOVEREIGNT,
               }}
               actions={{
                 onClick: () => handleMapClick(country),
                 projectFn: (point, zoom) => map.project(point, zoom),
-                setHovered: setHoveredCountry,
+                changeHovered,
               }}
             />
           ))}
