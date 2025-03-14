@@ -150,8 +150,8 @@ export function pivotTable<T extends Record<string, unknown>, K extends keyof T,
 
 /**
  * Creates a catalog from an array of items.
- * Use the label mapper to capture the label from the item.
- * Use the value mapper to capture the value from the item.
+ * Use the label mapper to select the label from the item that will be used as the key.
+ * Use the value mapper to calculate a value from the item.
  *
  *  Example:
  *  ```ts
@@ -188,35 +188,17 @@ export function pivotTable<T extends Record<string, unknown>, K extends keyof T,
  *
  * @param items An array of objects
  */
-// TODO: Clean this up when TypeScript 5.8 is released and supports branched type narrowing
-// See: https://www.youtube.com/watch?v=lUl6gtytG64
-// See: https://github.com/microsoft/TypeScript/pull/56941
-// See: https://devblogs.microsoft.com/typescript/announcing-typescript-5-8-beta/#what’s-next
-// Date: 2025/02/03
-export function catalogByProperty<T extends Record<string, unknown>, U extends string = string>(
-  items: T[],
-  labelMapper: (item: T) => U,
-): Record<string, T>;
-export function catalogByProperty<T extends Record<string, unknown>, V, U extends string = string>(
-  items: T[],
-  labelMapper: (item: T) => U,
-  valueMapper: (item: T) => V,
-): Record<string, V>;
-export function catalogByProperty<T extends Record<string, unknown>, V, U extends string = string>(
-  items: T[],
-  labelMapper: (item: T) => U,
-  valueMapper?: (item: T) => V,
+export function mapCatalogByProperty<R extends Record<string, unknown>, L extends string = string, MV = R>(
+  items: R[],
+  labelMapper: (item: R) => L,
+  valueMapper: (item: R) => MV,
 ) {
-  const catalog: Record<string, T | V> = {};
+  const catalog: Record<string, MV> = {};
 
-  if (items && items.length > 0) {
-    for (const item of items) {
-      if (!item) continue;
-
-      const mappedLabel = labelMapper(item);
-      const mappedValue = valueMapper?.(item);
-      catalog[mappedLabel] = mappedValue ?? item;
-    }
+  for (const item of items) {
+    if (!item) continue;
+    const key = labelMapper(item);
+    catalog[key] = valueMapper(item);
   }
 
   return catalog;

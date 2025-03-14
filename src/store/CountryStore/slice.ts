@@ -2,14 +2,14 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { LatLngBounds } from "leaflet";
 
-import { catalogByProperty, pivotTable, shuffleArray } from "src/lib/utils";
+import { mapCatalogByProperty, pivotTable, shuffleArray } from "src/lib/utils";
 import type { CountriesByContinent, CountryCatalog, CountryData } from "src/store/CountryStore/types";
 import type { AppThunk, RootState } from "..";
 
 import continentData from "src/assets/data/features/continent-features.json";
 import countryData from "src/assets/data/features/country-features.json";
 
-export const continentBoundsCatalog = catalogByProperty(
+export const continentBoundsCatalog = mapCatalogByProperty(
   continentData,
   (item) => item.CONTINENT,
   (item) => {
@@ -19,7 +19,12 @@ export const continentBoundsCatalog = catalogByProperty(
     return new LatLngBounds([south ?? 0, west ?? 0], [north ?? 0, east ?? 0]);
   },
 );
-export const countryCatalog: CountryCatalog = catalogByProperty(countryData, ({ GU_A3 }) => GU_A3);
+
+export const countryCatalog: CountryCatalog = mapCatalogByProperty(
+  countryData,
+  ({ GU_A3 }) => GU_A3,
+  (item) => item,
+);
 export const countriesByContinent: CountriesByContinent = pivotTable(countryCatalog, "CONTINENT", ({ GU_A3 }) => GU_A3);
 export const continents = [...Object.keys(countriesByContinent).sort()] as const;
 
