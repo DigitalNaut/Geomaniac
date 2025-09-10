@@ -128,13 +128,13 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-amber-500 [transition:opacity_250ms_ease-in-out_10ms,_color_250ms_ease-in-out_10ms,_background-color_250ms_ease-out_10ms,_translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-lime-700 transition [transition:opacity_250ms_ease-in-out_10ms,_color_250ms_ease-in-out_10ms,_background-color_250ms_ease-out_10ms,_translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
-          "bg-amber-500 text-white drop-shadow-md": regionHovered === countryData.SUBREGION,
+          "bg-slate-200 text-slate-900 drop-shadow-md": regionHovered === countryData.SUBREGION,
           "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
           "bg-sky-500 text-slate-200": adminHovered === countryData.ADMIN,
           "z-401 bg-slate-200/80 text-slate-700 opacity-100": geounitHovered === labelGeounit,
-          "z-400 translate-y-[-56px] bg-white p-0 text-slate-900 outline-1 drop-shadow-md hover:bg-white/30 hover:opacity-25":
+          "z-400 translate-y-[-56px] bg-slate-200 p-0 text-slate-900 outline-1 drop-shadow-md hover:bg-slate'/30 hover:opacity-25":
             isCurrentCountry,
         },
       )}
@@ -157,9 +157,9 @@ function CountryLabel({
             exit="exit"
             transition={{ duration: 0.25 }}
           >
-            <div className="bg-amber-500 px-1 text-xs text-white">{countryData.SUBREGION}</div>
-            <div className="bg-lime-600 p-0.5 px-1 text-xs text-white">{sovereignt}</div>
-            <div className="bg-sky-500 p-0.5 px-1 text-xs text-white">{admin}</div>
+            <div className="bg-lime-700 px-1 text-xs text-slate-200">{countryData.SUBREGION}</div>
+            <div className="bg-lime-600 p-0.5 px-1 text-xs text-slate-200">{sovereignt}</div>
+            <div className="bg-sky-500 p-0.5 px-1 text-xs text-slate-200">{admin}</div>
           </motion.div>
         )}
       </AnimatePresence>
