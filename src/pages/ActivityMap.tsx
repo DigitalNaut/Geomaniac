@@ -138,7 +138,7 @@ function CountryLabel({
             isCurrentCountry,
         },
       )}
-      title={`Soverignt: ${countryData.SOVEREIGNT}\nAdmin: ${countryData.ADMIN}\nGeounit: ${countryData.GEOUNIT}`}
+      title={`Sovereignt: ${countryData.SOVEREIGNT}\nAdmin: ${countryData.ADMIN}\nGeounit: ${countryData.GEOUNIT}`}
       key={labelGeounit}
       style={{
         transform: `translate(${position.x - left}px, ${position.y - top}px)`,
