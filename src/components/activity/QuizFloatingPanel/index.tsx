@@ -68,16 +68,16 @@ function CountryFlag({ a2 }: { a2?: string }) {
   );
 }
 
-const panelVariants: Variants = {
-  hidden: { translateY: 100, opacity: 0, transition: { duration: 0.1 } },
-  visible: { translateY: 0, opacity: 1, transition: { duration: 0.2 } },
+const animationVariants: Variants = {
+  hidden: { opacity: 0, translateY: "2rem", transition: { duration: 0.1 } },
+  visible: { opacity: 1, translateY: 0, transition: { duration: 0.2 } },
 };
 
 function AnimatedPanel({ children }: PropsWithChildren) {
   return (
     <motion.div
       className="absolute inset-x-0 bottom-8 z-1000 mx-auto flex size-fit flex-col items-center gap-2 text-center"
-      variants={panelVariants}
+      variants={animationVariants}
       initial="hidden"
       animate="visible"
       exit="hidden"

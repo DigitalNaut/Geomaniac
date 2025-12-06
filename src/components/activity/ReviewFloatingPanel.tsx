@@ -10,8 +10,8 @@ import SourceLogo from "src/components/info/SourceLogo";
 import { UnsplashImages } from "src/components/info/UnsplashImages";
 import { useMapActivityContext } from "src/context/MapActivity/hook";
 
-const AnimationVariants: Variants = {
-  hidden: (custom: number = 0) => ({ opacity: 0, translateY: custom, transition: { duration: 0.1 } }),
+const animationVariants: Variants = {
+  hidden: () => ({ opacity: 0, translateY: "2rem", transition: { duration: 0.1 } }),
   visible: { opacity: 1, translateY: 0, transition: { duration: 0.2 } },
 };
 
@@ -25,7 +25,7 @@ function DetailFloatingPanel({
   return (
     <motion.div
       className={twMerge("absolute top-16 z-1000 rounded-md", className)}
-      variants={AnimationVariants}
+      variants={animationVariants}
       initial="hidden"
       animate="visible"
       exit="hidden"
@@ -93,8 +93,7 @@ export default function ReviewFloatingPanel({
   return (
     <motion.div
       className="pointer-events-none absolute inset-x-0 bottom-8 z-1000 mx-auto flex size-fit flex-col items-center gap-2 rounded-md"
-      variants={AnimationVariants}
-      custom={100}
+      variants={animationVariants}
       initial="hidden"
       animate="visible"
       exit="hidden"
