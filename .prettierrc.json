@@ -1,9 +1,0 @@
-{
-  "trailingComma": "all",
-  "tabWidth": 2,
-  "semi": true,
-  "printWidth": 120,
-  "tailwindFunctions": ["clsx", "twMerge", "twJoin", "cn", "tw"],
-  "tailwindPreserveWhitespace": false,
-  "plugins": ["prettier-plugin-tailwindcss"]
-}

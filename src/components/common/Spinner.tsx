@@ -14,7 +14,7 @@ export function Spinner({ message, className, cover }: SpinnerProps) {
     <div
       className={cn(
         "flex items-center justify-center gap-2 text-white",
-        { "inset absolute flex size-full h-full items-center justify-center": cover },
+        { "absolute inset-0 flex size-full h-full items-center justify-center": cover },
         className,
       )}
     >

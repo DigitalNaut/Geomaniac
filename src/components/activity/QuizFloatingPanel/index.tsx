@@ -56,7 +56,7 @@ function CountryFlag({ a2 }: { a2?: string }) {
 
   return (
     <img
-      className="before:bg-custom-unknown-flag h-[2.4rem] w-16 p-1 shadow-md before:block before:h-[2.4rem] before:w-16"
+      className="h-[2.4rem] w-16 p-1 shadow-md before:block before:h-[2.4rem] before:w-16 before:bg-custom-unknown-flag"
       src={src}
       loading="lazy"
       width={64}

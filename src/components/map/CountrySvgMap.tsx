@@ -292,7 +292,7 @@ export function CountrySvgMap({
           <CountryPath
             path={path}
             pointerEvents="none"
-            className="animate-scrollDash fill-lime-500 [stroke-dasharray:32] [stroke-dashoffset:8] hover:animate-none hover:fill-[url(#waves)] hover:stroke-white hover:[stroke-dasharray:0]"
+            className="animate-scroll-dash fill-lime-500 [stroke-dasharray:32] [stroke-dashoffset:8] hover:animate-none hover:fill-[url(#waves)] hover:stroke-white hover:[stroke-dasharray:0]"
             style={{
               strokeWidth: scaleByZoom(4),
             }}

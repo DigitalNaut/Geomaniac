@@ -42,7 +42,7 @@ function CountryStatsCard({ countryStats }: CountryStatsProps) {
       title={`${countryStats.GEOUNIT}\nCorrect: ${countryStats.correctGuesses}\nIncorrect: ${countryStats.incorrectGuesses}`}
     >
       <img
-        className="before:bg-custom-unknown-flag h-[2.4rem] w-16 p-1 before:block before:h-[2.4rem] before:w-16"
+        className="h-[2.4rem] w-16 p-1 before:block before:h-[2.4rem] before:w-16 before:bg-custom-unknown-flag"
         src={
           countryStats.ISO_A2_EH ? `https://flagcdn.com/${countryStats.ISO_A2_EH.toLocaleLowerCase()}.svg` : unknownFlag
         }

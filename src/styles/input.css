@@ -1,7 +1,8 @@
-@import 'tailwindcss';
-@plugin 'tailwind-scrollbar';
+@import "tailwindcss";
+@plugin "tailwind-scrollbar";
+@plugin "@tailwindcss/typography";
 
-@source '../**/*.{ts,tsx,css}';
+@source "../**/*.{ts,tsx,css}";
 
 @theme {
   --breakpoint-*: initial;
@@ -16,7 +17,7 @@
 
   --animate-scroll-dash: scrollDash 8s linear infinite;
 
-  --background-image-custom-unknown-flag: url('src/assets/images/unknown-flag.min.svg');
+  --background-image-custom-unknown-flag: url("src/assets/images/unknown-flag.min.svg");
 
   @keyframes scrollDash {
     to {

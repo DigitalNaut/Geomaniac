@@ -4,15 +4,12 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig } from "eslint/config";
 import tsEslint from "typescript-eslint";
-// TODO: Reimplement this when eslint-plugin-tailwindcss supports Tailwind 4
-// See: https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/325
-// import tailwind from "eslint-plugin-tailwindcss";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+
 import noRelativeImports from "eslint-plugin-no-relative-import-paths";
 import queryExhaustiveDeps from "@tanstack/eslint-plugin-query";
 
 export default defineConfig(
-  // TODO: Reimplement this when eslint-plugin-tailwindcss supports Tailwind 4
-  // ...tailwind.configs["flat/recommended"],
   { ignores: ["node_modules", "build", "dist", "coverage", "tools"] },
   {
     extends: [js.configs.recommended, ...tsEslint.configs.recommended],
@@ -20,15 +17,22 @@ export default defineConfig(
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
     },
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "no-relative-import-paths": noRelativeImports,
       "@tanstack/query": queryExhaustiveDeps,
+      "better-tailwindcss": eslintPluginBetterTailwindcss,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "no-console": "warn",
       "@typescript-eslint/consistent-type-imports": "error",
@@ -51,11 +55,17 @@ export default defineConfig(
           ignoreRestSiblings: true,
         },
       ],
+      // See: https://github.com/schoero/eslint-plugin-better-tailwindcss/issues/243#issuecomment-3562127924
+      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
+      "better-tailwindcss/no-unregistered-classes": ["warn", { ignore: ["(fa\\-|leaflet\\-).+"] }],
     },
     settings: {
       tailwindcss: {
         whitelist: ["(fa\\-|leaflet\\-).+"], // Prefixes followed by at least one character
         callees: ["twMerge", "twJoin", "cn", "tw"], // Defaults: ["classnames", "clsx", "ctl"] See: https://www.npmjs.com/package/eslint-plugin-tailwindcss#more-settings
+      },
+      "better-tailwindcss": {
+        entryPoint: "src/styles/input.css",
       },
     },
   },

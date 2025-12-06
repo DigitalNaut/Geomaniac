@@ -42,7 +42,7 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
       </h3>
 
       <div className="flex h-max flex-col gap-2 overflow-y-auto pl-2">
-        <div className="flex- flex flex-wrap gap-2 px-2 pb-[40vh]" ref={listRef}>
+        <div className="flex flex-wrap gap-2 px-2 pb-[40vh]" ref={listRef}>
           {visited.map(({ GEOUNIT, GU_A3 }) => (
             <button
               key={GU_A3}

@@ -57,7 +57,7 @@ export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }
 
   if (summaryError)
     return (
-      <span className="scrollbar-thin scrollbar-track-sky-900 scrollbar-thumb-sky-700 pointer-events-auto max-h-[300px] max-w-xl overflow-y-auto rounded-md bg-sky-900/60 p-3 break-all hover:bg-sky-900">
+      <span className="pointer-events-auto scrollbar-thin max-h-[300px] max-w-xl overflow-y-auto rounded-md bg-sky-900/60 p-3 break-all scrollbar-thumb-sky-700 scrollbar-track-sky-900 hover:bg-sky-900">
         Data unavailable at the moment. An error has occurred.
       </span>
     );
@@ -76,7 +76,7 @@ export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }
 
   return (
     <section className="flex max-h-[60vh] max-w-md flex-col">
-      <div className="scrollbar-thin scrollbar-track-sky-900 scrollbar-thumb-sky-700 visible relative scroll-p-8 overflow-y-auto px-4 pb-4 text-justify indent-4 break-words text-white">
+      <div className="visible relative scrollbar-thin scroll-p-8 overflow-y-auto px-4 pb-4 text-justify indent-4 wrap-break-word text-white scrollbar-thumb-sky-700 scrollbar-track-sky-900">
         <h1 className="mt-4 mb-6 flex justify-between gap-2 text-left text-3xl font-bold text-white">
           <span className="indent-0">{page.title}</span>
           <div>
