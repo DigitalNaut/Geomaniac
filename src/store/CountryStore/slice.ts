@@ -192,6 +192,15 @@ const countryStoreSlice = createSlice({
       activity.queue = activity.queue.filter((a3) => a3 !== countryA3) || null;
     },
 
+    resetState(state, { payload: activityType }: PayloadAction<ActivityType>) {
+      const activity = state[activityType];
+      activity.currentContinent = null;
+      activity.currentCountry = null;
+      activity.previousCountry = null;
+      activity.queue = [];
+      activity.visitedCountries = [];
+    },
+
     setCurrentCountryByCode(
       state,
       { payload: { countryA3, activityType } }: PayloadAction<{ countryA3: string | null; activityType: ActivityType }>,
@@ -230,12 +239,7 @@ const countryStoreSlice = createSlice({
 });
 
 export const {
-  newQueue,
   clearQueue,
-  removeFromQueue,
-  setCurrentCountryByCode,
-  clearVisitedCountries,
-  blacklistCountry,
   addVisitedCountry,
 } = countryStoreSlice.actions;
 export default countryStoreSlice.reducer;
@@ -269,8 +273,8 @@ export function changeCurrentCountry(activity: {
   countryA3: string;
 }): AppThunk<CountryData | null> {
   return function (dispatch) {
-    dispatch(setCurrentCountryByCode(activity));
-    dispatch(removeFromQueue({ type: activity.activityType, countryA3: activity.countryA3 }));
+    dispatch(countryStoreSlice.actions.setCurrentCountryByCode(activity));
+    dispatch(countryStoreSlice.actions.removeFromQueue({ type: activity.activityType, countryA3: activity.countryA3 }));
     dispatch(addVisitedCountry(activity));
 
     return countryCatalog[activity.countryA3];
@@ -279,9 +283,7 @@ export function changeCurrentCountry(activity: {
 
 export function resetActivity(activityType: ActivityType): AppThunk {
   return function (dispatch) {
-    dispatch(setCurrentCountryByCode({ countryA3: "", activityType }));
-    dispatch(clearVisitedCountries(activityType));
-    dispatch(clearQueue(activityType));
+    dispatch(countryStoreSlice.actions.resetState(activityType));
   };
 }
 
