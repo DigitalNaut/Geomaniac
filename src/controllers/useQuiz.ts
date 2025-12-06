@@ -2,7 +2,6 @@ import { useTally } from "src/hooks/common/useTally";
 import { useGuessRecord } from "src/hooks/useGuessRecord";
 import { normalizeName } from "src/utils/features";
 
-import { useCallback } from "react";
 import CorrectSound from "src/assets/sounds/correct.mp3?url";
 import IncorrectSound from "src/assets/sounds/incorrect.mp3?url";
 import { useAppSelector } from "src/store/hooks";
@@ -24,17 +23,14 @@ export function useQuiz() {
   const { createRecord } = useGuessRecord();
   const { tally, upTally, resetTally } = useTally();
 
-  const checkAnswer = useCallback(
-    (guess: string) => {
-      if (!answerCountry) return false;
+  const checkAnswer = (guess: string) => {
+    if (!answerCountry) return false;
 
-      const answer = answerCountry.GEOUNIT;
-      const inputMatchesAnswer = normalizeName(guess) === normalizeName(answer);
+    const answer = answerCountry.GEOUNIT;
+    const inputMatchesAnswer = normalizeName(guess) === normalizeName(answer);
 
-      return inputMatchesAnswer;
-    },
-    [answerCountry],
-  );
+    return inputMatchesAnswer;
+  };
 
   const submitAnswer = (userGuess: string) => {
     if (!userGuess || userGuess.length === 0 || !answerCountry) return false;

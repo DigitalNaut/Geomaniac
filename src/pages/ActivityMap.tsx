@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Map } from "leaflet";
 import type { Variants } from "motion/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Marker, ZoomControl } from "react-leaflet";
 
 import { ActivityButton } from "src/components/activity/ActivityButton";
@@ -181,23 +181,22 @@ function useMapPixelPosition() {
   const { map } = useMapContext();
   const [mapPixelBounds, setMapPixelBounds] = useState<MapPixelPosition | null>(() => null);
 
-  const resetSvgLabelPositions = useCallback(() => {
-    setMapPixelBounds(null);
-  }, []);
-
-  const updateSvgLabelPositions = useCallback(() => {
-    setMapPixelBounds(getMinBoundPositions(map));
-  }, [map]);
-
   useEffect(
     function manageSvgLabelPositions() {
+      const resetSvgLabelPositions = () => {
+        setMapPixelBounds(null);
+      };
+
+      const updateSvgLabelPositions = () => {
+        setMapPixelBounds(getMinBoundPositions(map));
+      };
+
       if (map) {
         map.on("movestart", resetSvgLabelPositions);
         map.on("zoomstart", resetSvgLabelPositions);
         map.on("moveend", updateSvgLabelPositions);
         map.on("zoomend", updateSvgLabelPositions);
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- This is fine, the effect has no circular dependencies
         updateSvgLabelPositions();
       }
 
@@ -210,7 +209,7 @@ function useMapPixelPosition() {
         }
       };
     },
-    [map, resetSvgLabelPositions, updateSvgLabelPositions],
+    [map],
   );
 
   return mapPixelBounds;
@@ -219,11 +218,8 @@ function useMapPixelPosition() {
 function useHoveredCountry() {
   const [hovered, setHovered] = useState<CountryData | undefined>(undefined);
 
-  const changeHovered = useCallback(
-    (a3: string | undefined) => a3 && a3 !== hovered?.GU_A3 && setHovered(countryCatalog[a3]),
-    [hovered],
-  );
-  const resetHovered = useCallback((a3: string) => (a3 === hovered?.GU_A3 ? setHovered(undefined) : null), [hovered]);
+  const changeHovered = (a3: string | undefined) => a3 && a3 !== hovered?.GU_A3 && setHovered(countryCatalog[a3]);
+  const resetHovered = (a3: string) => (a3 === hovered?.GU_A3 ? setHovered(undefined) : null);
 
   return { hovered, changeHovered, resetHovered };
 }
@@ -254,15 +250,15 @@ function ActivityMap({
 
   const storedCountryCoordinates = currentCountry ? getLabelCoordinates(currentCountry) : null;
 
-  const finishActivity = useCallback(() => {
+  const finishActivity = () => {
     onFinishActivity();
     resetViewport();
-  }, [onFinishActivity, resetViewport]);
+  };
 
-  const resetActivity = useCallback(() => {
+  const resetActivity = () => {
     resetViewport();
     reset();
-  }, [resetViewport, reset]);
+  };
 
   useHeaderController(finishActivity);
 

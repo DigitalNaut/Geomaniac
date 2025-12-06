@@ -1,5 +1,4 @@
 import type { RefObject } from "react";
-import { useCallback } from "react";
 
 import { useQuiz } from "src/controllers/useQuiz";
 import { useInputField } from "src/hooks/common/useInputField";
@@ -87,9 +86,9 @@ export function useQuizInput(): IActivity & {
     dispatch(clearQueue(activityType));
   };
 
-  const reset = useCallback(() => {
+  const reset = () => {
     dispatch(resetActivity(activityType));
-  }, [dispatch]);
+  };
 
   const resume = () => void 0;
 

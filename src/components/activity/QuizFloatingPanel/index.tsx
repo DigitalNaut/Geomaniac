@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Variants } from "motion/react";
 import { motion } from "motion/react";
 import type { KeyboardEvent, PropsWithChildren, RefObject } from "react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 import { InlineButton } from "src/components/activity/InlineButton";
 import { ActionButton } from "src/components/common/ActionButton";
@@ -104,19 +104,19 @@ export default function QuizFloatingPanel({
 }) {
   const currentCountry = useAppSelector(selectCurrentCountryData("quiz"));
 
-  const onShakeStart = useCallback(() => {
+  const onShakeStart = () => {
     if (!inputRef.current) return;
 
     inputRef.current.disabled = true;
-  }, [inputRef]);
+  };
 
-  const onShakeEnd = useCallback(() => {
+  const onShakeEnd = () => {
     if (!inputRef.current) return;
 
     inputRef.current.disabled = false;
     inputRef.current.focus();
     inputRef.current.select();
-  }, [inputRef]);
+  };
 
   const { startShake, scope } = useShakeAnimation({
     onShakeStart,

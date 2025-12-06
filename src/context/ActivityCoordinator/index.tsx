@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useActivityTracker, useMapActivityContext } from "src/context/MapActivity/hook";
 import { useQuizClick } from "src/controllers/useQuizClick";
@@ -75,36 +75,30 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   /**
    * Focuses the Leaflet map viewport on the given country.
    */
-  const focusViewportCountry = useCallback(
-    (country: CountryData | null, delayMs = 0, animate = true) => {
-      if (!country) return;
+  const focusViewportCountry = (country: CountryData | null, delayMs = 0, animate = true) => {
+    if (!country) return;
 
-      const destination = getLabelCoordinates(country);
+    const destination = getLabelCoordinates(country);
 
-      panTo(destination, { delayMs, animate });
-    },
-    [panTo],
-  );
+    panTo(destination, { delayMs, animate });
+  };
 
   /**
    * Focuses the Leaflet map viewport on the given continent.
    * @param a3
    * @returns
    */
-  const focusViewportContinent = useCallback(
-    (continent?: string | null, fitToView = true) => {
-      if (!continent || continent.length === 0) return;
+  const focusViewportContinent = (continent?: string | null, fitToView = true) => {
+    if (!continent || continent.length === 0) return;
 
-      const continentBounds = continentBoundsCatalog[continent];
+    const continentBounds = continentBoundsCatalog[continent];
 
-      if (fitToView) {
-        fitTo(continentBounds);
-      } else {
-        panInside(continentBounds);
-      }
-    },
-    [fitTo, panInside],
-  );
+    if (fitToView) {
+      fitTo(continentBounds);
+    } else {
+      panInside(continentBounds);
+    }
+  };
 
   const handleMapClick = (a3?: string) => {
     if (!activity || !a3) return;
@@ -221,7 +215,7 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     return null;
   };
 
-  const reset = useCallback(() => {
+  const reset = () => {
     if (!activity) return;
 
     switch (activity.kind) {
@@ -235,7 +229,7 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
         clickQuiz.reset();
         break;
     }
-  }, [activity, clickQuiz, inputQuiz, review]);
+  };
 
   useActivityTracker((prevActivity, currentActivity) => {
     const isNewActivity = prevActivity === null && currentActivity !== null;

@@ -1,6 +1,6 @@
 import type { LeafletEventHandlerFnMap } from "leaflet";
 import type { MouseEventHandler, SVGAttributes } from "react";
-import { Fragment, useCallback } from "react";
+import { Fragment } from "react";
 
 import SvgMap from "src/components/common/SvgMap";
 import { useMapContext } from "src/context/Map/hook";
@@ -191,7 +191,7 @@ function useZoomAdjustedLineStroke() {
    * @param zoom
    * @returns
    */
-  const scaleByZoom = useCallback((value: number) => (zoom && zoom > 0 ? value / zoom ** 2 : value), [zoom]);
+  const scaleByZoom = (value: number) => (zoom && zoom > 0 ? value / zoom ** 2 : value);
 
   return { scaleByZoom };
 }
@@ -226,16 +226,10 @@ export function CountrySvgMap({
 
   const style = { strokeWidth: scaleByZoom(3) };
 
-  const handleMouseEnter: MouseEventHandler<SVGPathElement> = useCallback(
-    (path) => onMouseEnter?.(path.currentTarget.getAttribute("data-a3") ?? ""),
-    [onMouseEnter],
-  );
-
-  const handleMouseLeave: MouseEventHandler<SVGPathElement> = useCallback(
-    (path) => onMouseLeave?.(path.currentTarget.getAttribute("data-a3") ?? ""),
-    [onMouseLeave],
-  );
-
+  const handleMouseEnter: MouseEventHandler<SVGPathElement> = (path) =>
+    onMouseEnter?.(path.currentTarget.getAttribute("data-a3") ?? "");
+  const handleMouseLeave: MouseEventHandler<SVGPathElement> = (path) =>
+    onMouseLeave?.(path.currentTarget.getAttribute("data-a3") ?? "");
   if (hidden) return null;
 
   return (

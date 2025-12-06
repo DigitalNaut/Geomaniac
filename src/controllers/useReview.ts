@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 
 import {
@@ -24,22 +24,16 @@ export function useReview(): IActivity & {
   const activityState = useAppSelector((state) => state.countryStore);
   const currentActivity = activityState[activityType];
 
-  const liftToSearchParams = useCallback(
-    (key: string, value: string) => {
-      setURLSearchParams((prev) => {
-        prev.set(key, value);
-        return prev;
-      });
-    },
-    [setURLSearchParams],
-  );
+  const liftToSearchParams = (key: string, value: string) => {
+    setURLSearchParams((prev) => {
+      prev.set(key, value);
+      return prev;
+    });
+  };
 
-  const isVisitedCountry = useCallback(
-    (targetA3: string) => currentActivity.visitedCountries.includes(targetA3),
-    [currentActivity.visitedCountries],
-  );
+  const isVisitedCountry = (targetA3: string) => currentActivity.visitedCountries.includes(targetA3);
 
-  const nextCountry = useCallback(() => {
+  const nextCountry = () => {
     const countryData = dispatch(getNextCountry(activityType));
 
     if (countryData) {
@@ -48,49 +42,42 @@ export function useReview(): IActivity & {
     }
 
     return countryData;
-  }, [dispatch, liftToSearchParams]);
+  };
 
-  const setCurrentCountry = useCallback(
-    (countryA3: string) => {
-      const countryData = dispatch(changeCurrentCountry({ countryA3, activityType }));
+  const setCurrentCountry = (countryA3: string) => {
+    const countryData = dispatch(changeCurrentCountry({ countryA3, activityType }));
 
-      if (!countryData) return null;
+    if (!countryData) return null;
 
-      const countryInUrl = searchParams.get("country");
+    const countryInUrl = searchParams.get("country");
 
-      if (countryInUrl !== countryData.GU_A3) {
-        liftToSearchParams("country", countryData.GU_A3);
-      }
+    if (countryInUrl !== countryData.GU_A3) {
+      liftToSearchParams("country", countryData.GU_A3);
+    }
 
-      return countryData;
-    },
-    [dispatch, liftToSearchParams, searchParams],
-  );
+    return countryData;
+  };
 
-  const visitedCountries = useMemo(() => {
-    if (!currentActivity.currentCountry) return [];
+  const visitedCountries = !currentActivity.currentCountry
+    ? []
+    : [
+        ...currentActivity.visitedCountries.filter((country) => isVisitedCountry(country)),
+        currentActivity.currentCountry.GU_A3,
+      ];
 
-    const filteredVisitedCountries = currentActivity.visitedCountries.filter((country) => isVisitedCountry(country));
+  const deleteFromSearchParams = (param: string) => {
+    setURLSearchParams((prev) => {
+      prev.delete(param);
+      return prev;
+    });
+  };
 
-    return [...filteredVisitedCountries, currentActivity.currentCountry.GU_A3];
-  }, [currentActivity.currentCountry, currentActivity.visitedCountries, isVisitedCountry]);
-
-  const deleteFromSearchParams = useCallback(
-    (param: string) => {
-      setURLSearchParams((prev) => {
-        prev.delete(param);
-        return prev;
-      });
-    },
-    [setURLSearchParams],
-  );
-
-  const reset = useCallback(() => {
+  const reset = () => {
     deleteFromSearchParams("country");
     dispatch(resetActivityAction(activityType));
-  }, [deleteFromSearchParams, dispatch]);
+  };
 
-  const start = useCallback(() => {
+  const start = () => {
     const countryInUrl = searchParams.get("country");
 
     if (currentActivity.currentCountry) {
@@ -115,15 +102,15 @@ export function useReview(): IActivity & {
     }
 
     return setCurrentCountry(countryInUrl);
-  }, [searchParams, currentActivity, setCurrentCountry, liftToSearchParams, nextCountry, deleteFromSearchParams]);
+  };
 
-  const finish = useCallback(() => {
+  const finish = () => {
     deleteFromSearchParams("country");
-  }, [deleteFromSearchParams]);
+  };
 
-  const resume = useCallback(() => {
+  const resume = () => {
     if (currentActivity.currentCountry) liftToSearchParams("country", currentActivity.currentCountry.GU_A3);
-  }, [currentActivity.currentCountry, liftToSearchParams]);
+  };
 
   useEffect(function setCountryFromUrlOnPageLoad() {
     start();
