@@ -10,6 +10,7 @@ import userSettingsReducer, { settingsStorage } from "./UserSettings/slice";
 import { UserSettingsSchema } from "./UserSettings/types";
 
 export const store = configureStore({
+  devTools: import.meta.env.DEV,
   preloadedState: {
     errorLog: [],
     settings: settingsStorage.load() ?? UserSettingsSchema.parse(undefined),
