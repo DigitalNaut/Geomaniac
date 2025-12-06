@@ -42,7 +42,10 @@
     "wordmark",
     "Xmark",
     "Zapsplat",
-    "zoomend"
+    "zoomstart",
+    "zoomend",
+    "movestart",
+    "moveend"
   ],
   "dotenv.enableAutocloaking": false,
   "deno.enable": true,
