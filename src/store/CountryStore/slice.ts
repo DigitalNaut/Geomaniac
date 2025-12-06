@@ -247,6 +247,15 @@ export function getNextCountry(activityType: keyof CountryStoreState): AppThunk<
   };
 }
 
+export function createNewQueue(
+  params: Parameters<typeof countryStoreSlice.actions.newQueue>[0],
+): AppThunk<CountryData | null> {
+  return function (dispatch, getState) {
+    dispatch(countryStoreSlice.actions.newQueue(params));
+    return getState().countryStore[params.activityType].currentCountry;
+  };
+}
+
 /**
  * It'll:
  * - Override the current country

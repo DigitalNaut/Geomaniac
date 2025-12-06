@@ -10,7 +10,7 @@ import {
   continentBoundsCatalog,
   countriesByContinent,
   countryCatalog,
-  newQueue,
+  createNewQueue,
   selectCurrentContinent,
   selectCurrentCountryData,
 } from "src/store/CountryStore/slice";
@@ -133,8 +133,8 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const setContinent = (continent: string) => {
     if (!activity) return;
 
-    dispatch(
-      newQueue({
+    const country = dispatch(
+      createNewQueue({
         activityType: activity.activity,
         continent,
         shuffle: false,
