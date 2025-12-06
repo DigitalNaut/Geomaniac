@@ -15,7 +15,7 @@
     "serve": "netlify serve",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "typecheck": "tsc",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "validate": "pnpm lint && pnpm typecheck",
     "dead-code": "ts-prune | grep -v netlify"
   },
