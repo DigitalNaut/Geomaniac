@@ -2,7 +2,8 @@ import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
-import { defineConfig } from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+import tsEslint from "typescript-eslint";
 // TODO: Reimplement this when eslint-plugin-tailwindcss supports Tailwind 4
 // See: https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/325
 // import tailwind from "eslint-plugin-tailwindcss";
