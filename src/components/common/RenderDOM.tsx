@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo, useState } from "react";
+import { createElement, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 
 function filterText(text: string) {
@@ -11,25 +11,16 @@ function filterText(text: string) {
 
 const domParser = new DOMParser();
 
-function useDOMParser(input = "") {
-  const [error, setError] = useState<Error | null>(null);
+function parseInput(input: string) {
+  const filteredInput = filterText(input);
+  const doc = domParser.parseFromString(filteredInput, "application/xhtml+xml");
 
-  const doc = useMemo(() => {
-    const filteredInput = filterText(input);
-    return domParser.parseFromString(filteredInput, "application/xhtml+xml");
-  }, [input]);
+  const parserError = doc.querySelector("parsererror");
+  if (parserError) {
+    return { doc, error: new Error(parserError.textContent || undefined) };
+  }
 
-  useEffect(() => {
-    if (doc) {
-      const errorNode = doc.querySelector("parsererror");
-
-      if (errorNode) {
-        setError(new Error(errorNode.textContent || undefined));
-      }
-    }
-  }, [doc]);
-
-  return { doc, error };
+  return { doc };
 }
 
 export function RenderDOM({ className, input }: { className?: string; input: string }) {
