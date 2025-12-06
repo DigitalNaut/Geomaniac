@@ -191,7 +191,7 @@ function useZoomAdjustedLineStroke() {
    * @param zoom
    * @returns
    */
-  const scaleByZoom = useCallback((value: number) => value / zoom ** 2, [zoom]);
+  const scaleByZoom = useCallback((value: number) => (zoom && zoom > 0 ? value / zoom ** 2 : value), [zoom]);
 
   return { scaleByZoom };
 }

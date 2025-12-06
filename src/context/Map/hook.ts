@@ -5,8 +5,8 @@ import { createContext, useContext } from "react";
 export type MapContextType = {
   map?: Map;
   setMap: Dispatch<SetStateAction<Map | undefined>>;
-  zoom: number;
-  setZoom: Dispatch<SetStateAction<number>>;
+  zoom?: number;
+  setZoom: Dispatch<SetStateAction<number | undefined>>;
 };
 
 export const MapContext = createContext<MapContextType | null>(null);

@@ -11,7 +11,7 @@ import { MapContext } from "./hook";
  */
 export function MapContextProvider({ children }: PropsWithChildren) {
   const [map, setMap] = useState<MapContextType["map"]>();
-  const [zoom, setZoom] = useState<number>(mapDefaults.zoom);
+  const [zoom, setZoom] = useState<number | undefined>(mapDefaults.zoom);
 
   return <MapContext value={{ map, setMap, zoom, setZoom }}>{children}</MapContext>;
 }
