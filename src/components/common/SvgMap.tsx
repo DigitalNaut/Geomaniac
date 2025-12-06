@@ -1,7 +1,6 @@
 import type { LeafletEventHandlerFnMap } from "leaflet";
 import { latLngBounds } from "leaflet";
 import type { ComponentProps, PropsWithChildren } from "react";
-import { useMemo } from "react";
 import type { SVGOverlayProps } from "react-leaflet";
 import { SVGOverlay } from "react-leaflet";
 import { twMerge } from "tailwind-merge";
@@ -48,17 +47,10 @@ export default function SvgMap({
     };
   } & Omit<ComponentProps<typeof SVGOverlay>, "bounds">
 >) {
-  const bounds = useMemo(() => {
-    const north = defaultBounds.north + boundsAdjustment.top,
-      south = defaultBounds.south - boundsAdjustment.bottom,
-      west = defaultBounds.west - boundsAdjustment.left,
-      east = defaultBounds.east + boundsAdjustment.right;
-
-    return latLngBounds([
-      [south, west],
-      [north, east],
-    ]);
-  }, [boundsAdjustment]);
+  const bounds = latLngBounds([
+    [defaultBounds.south - boundsAdjustment.bottom, defaultBounds.west - boundsAdjustment.left],
+    [defaultBounds.north + boundsAdjustment.top, defaultBounds.east + boundsAdjustment.right],
+  ]);
 
   return (
     <SVGOverlay

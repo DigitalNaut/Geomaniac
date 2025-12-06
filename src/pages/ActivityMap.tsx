@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Map } from "leaflet";
 import type { Variants } from "motion/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Marker, ZoomControl } from "react-leaflet";
 
 import { ActivityButton } from "src/components/activity/ActivityButton";
@@ -111,17 +111,11 @@ function CountryLabel({
     projectFn: Map["project"];
   };
 }) {
-  const { countryData, position, sovereignt, admin } = useMemo(() => {
-    const countryData = countryCatalog[labelGeounit];
-    const position = projectFn(getLabelCoordinates(countryData));
-
-    const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
-
-    const admin =
-      countryData.ADMIN === sovereignt || countryData.ADMIN === countryData.GEOUNIT ? null : countryData.ADMIN;
-
-    return { countryData, position, sovereignt, admin };
-  }, [labelGeounit, projectFn]);
+  const countryData = countryCatalog[labelGeounit];
+  const position = projectFn(getLabelCoordinates(countryData));
+  const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
+  const admin =
+    countryData.ADMIN === sovereignt || countryData.ADMIN === countryData.GEOUNIT ? null : countryData.ADMIN;
 
   if (!position) return null;
 
@@ -258,10 +252,7 @@ function ActivityMap({
 
   const { currentContinent, currentCountry } = currentActivityState ?? {};
 
-  const storedCountryCoordinates = useMemo(
-    () => (currentCountry ? getLabelCoordinates(currentCountry) : null),
-    [currentCountry],
-  );
+  const storedCountryCoordinates = currentCountry ? getLabelCoordinates(currentCountry) : null;
 
   const finishActivity = useCallback(() => {
     onFinishActivity();
@@ -277,20 +268,15 @@ function ActivityMap({
 
   const { activity } = useMapActivityContext();
 
-  const colorTheme = useMemo(() => mapActivityTheme[activity?.activity || "default"], [activity]);
+  const colorTheme = mapActivityTheme[activity?.activity || "default"];
 
-  const mapLists = useMemo<ActiveSvgMapLists>(() => {
+  const mapLists: ActiveSvgMapLists = {
     // Active list is all countries in the current continent
-    const activeList = !currentContinent ? [] : countriesByContinent[currentContinent].slice();
+    activeList: !currentContinent ? [] : countriesByContinent[currentContinent].slice(),
     // Highlight list is the current country unless Pointing
-    const highlightList = activity?.kind === "pointing" ? [] : !currentCountry ? [] : [currentCountry.GU_A3];
-
-    return {
-      activeList,
-      highlightList,
-      visitedList: visitedCountries,
-    };
-  }, [activity?.kind, currentContinent, currentCountry, visitedCountries]);
+    highlightList: activity?.kind === "pointing" ? [] : !currentCountry ? [] : [currentCountry.GU_A3],
+    visitedList: visitedCountries,
+  };
 
   const mapOffset = useMapPixelPosition();
 

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 
 const logoUrls = {
@@ -8,8 +7,8 @@ const logoUrls = {
 } as const;
 
 export default function SourceLogo({ className, source }: { className?: string; source: keyof typeof logoUrls }) {
-  const alt = useMemo(() => `${source.charAt(0).toUpperCase() + source.slice(1)} logo`, [source]);
-  const src = useMemo(() => logoUrls[source], [source]);
+  const alt = `${source.charAt(0).toUpperCase() + source.slice(1)} logo`;
+  const src = logoUrls[source];
 
   return <img className={twMerge("inline-block w-4", className)} src={src} alt={alt} loading="lazy" />;
 }

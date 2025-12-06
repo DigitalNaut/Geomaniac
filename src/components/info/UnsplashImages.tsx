@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosRequestConfig } from "axios";
 import { AnimatePresence, motion, type Variants } from "motion/react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import Masonry from "react-responsive-masonry";
 
 import useEdgeKeys from "src/hooks/useEdgeKeys";
@@ -13,12 +13,6 @@ import type { UnsplashSearchResponse } from "src/types/unsplash";
 
 const unsplashApiURL = "https://api.unsplash.com";
 const unsplashSearch = `${unsplashApiURL}/search/photos?query=`;
-
-const newRequestConfig = (accessKey = "") => ({
-  headers: {
-    Authorization: `Client-ID ${accessKey}`,
-  },
-});
 
 const newImageSearchParams = (query = "") =>
   new URLSearchParams({
@@ -40,13 +34,14 @@ export function UnsplashImages({ onError }: { onError: (error: Error) => void })
   const { data: keys } = useEdgeKeys();
   const currentCountry = useAppSelector(selectCurrentCountryData("review"));
 
-  const currentCountryData = useMemo(() => (currentCountry ? currentCountry : null), [currentCountry]);
-  const query = useMemo(() => newImageSearchParams(currentCountryData?.GEOUNIT), [currentCountryData?.GEOUNIT]);
+  const currentCountryData = currentCountry ? currentCountry : null;
+  const query = newImageSearchParams(currentCountryData?.GEOUNIT);
 
-  const config: AxiosRequestConfig = useMemo(
-    () => newRequestConfig(keys?.unsplash.accessKey),
-    [keys?.unsplash.accessKey],
-  );
+  const config: AxiosRequestConfig = {
+    headers: {
+      Authorization: `Client-ID ${keys?.unsplash.accessKey}`,
+    },
+  };
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["country-images", currentCountryData, currentCountryData?.GEOUNIT, query, config],
@@ -70,12 +65,7 @@ export function UnsplashImages({ onError }: { onError: (error: Error) => void })
         {data?.results.length && (
           <Masonry columnsCount={2}>
             {data.results.map((image) => (
-              <motion.div
-                key={image.id}
-                whileHover="hover"
-                transition={{ duration: 0.05 }}
-                variants={overlayVariants}
-              >
+              <motion.div key={image.id} whileHover="hover" transition={{ duration: 0.05 }} variants={overlayVariants}>
                 <div className="peer/image group/label relative h-auto w-full" key={image.id}>
                   <img src={image.urls.thumb} alt={image.alt_description} loading="lazy" />
 

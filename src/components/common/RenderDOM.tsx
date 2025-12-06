@@ -1,4 +1,4 @@
-import { createElement, useMemo } from "react";
+import { createElement } from "react";
 import { twMerge } from "tailwind-merge";
 
 function filterText(text: string) {
@@ -24,9 +24,8 @@ function parseInput(input: string) {
 }
 
 export function RenderDOM({ className, input }: { className?: string; input: string }) {
-  const { doc, error } = useMemo(() => parseInput(input), [input]);
-
-  const htmlSections = useMemo(() => doc?.childNodes[0].childNodes, [doc]);
+  const { doc, error } = parseInput(input);
+  const htmlSections = doc?.childNodes[0].childNodes;
 
   if (error)
     return (

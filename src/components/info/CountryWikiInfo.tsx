@@ -2,7 +2,7 @@ import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosRequestConfig } from "axios";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 
 import { RenderDOM } from "src/components/common/RenderDOM";
 import { selectCurrentCountryData } from "src/store/CountryStore/slice";
@@ -38,7 +38,7 @@ const queryWikipedia = (query: URLSearchParams) =>
 
 export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }) {
   const currentCountry = useAppSelector(selectCurrentCountryData("review"));
-  const query = useMemo(() => createWikipediaRequestParams(currentCountry?.GEOUNIT), [currentCountry?.GEOUNIT]);
+  const query = createWikipediaRequestParams(currentCountry?.GEOUNIT);
 
   const {
     isLoading: isSummaryLoading,

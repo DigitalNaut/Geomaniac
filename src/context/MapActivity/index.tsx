@@ -1,5 +1,4 @@
 import type { PropsWithChildren } from "react";
-import { useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import type { ActivityType } from "src/types/map-activity";
@@ -39,9 +38,8 @@ export function MapActivityProvider({ children }: PropsWithChildren) {
     });
   };
 
-  const isRandomReviewMode = useMemo(() => searchParams.get("random") === "true", [searchParams]);
-
-  const activity = useMemo(() => (isValidActivity(params) ? params : null), [params]);
+  const isRandomReviewMode = searchParams.get("random") === "true";
+  const activity = isValidActivity(params) ? params : null;
 
   const navigateToActivity = (newActivity: ActivityType | null) => {
     navigate(newActivity ? `/${newActivity.activity}/${newActivity.kind}` : "/");

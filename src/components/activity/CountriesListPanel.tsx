@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { useActivityCoordinatorContext } from "src/context/ActivityCoordinator/hook";
 import { useMapActivityContext } from "src/context/MapActivity/hook";
@@ -9,9 +9,9 @@ import { cn } from "src/utils/styles";
 export default function CountriesListPanel({ isAbridged = false }: { isAbridged?: boolean }) {
   const { activity } = useMapActivityContext();
   const { setCurrentCountry, visitedCountries, unvisitedCountries } = useActivityCoordinatorContext();
-  const getCurrentCountryA3 = useMemo(() => selectCurrentCountryA3(activity?.activity), [activity?.activity]);
+  const getCurrentCountryA3 = selectCurrentCountryA3(activity?.activity);
   const currentCountryA3 = useAppSelector(getCurrentCountryA3);
-  const getCurrentContinent = useMemo(() => selectCurrentContinent(activity?.activity), [activity?.activity]);
+  const getCurrentContinent = selectCurrentContinent(activity?.activity);
   const currentContinent = useAppSelector(getCurrentContinent);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -31,13 +31,8 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
     setCurrentCountry(countryA3);
   };
 
-  const { visited, unvisited } = useMemo(
-    () => ({
-      visited: visitedCountries.map((countryA3) => countryCatalog[countryA3]),
-      unvisited: unvisitedCountries.map((countryA3) => countryCatalog[countryA3]),
-    }),
-    [visitedCountries, unvisitedCountries],
-  );
+  const visited = visitedCountries.map((countryA3) => countryCatalog[countryA3]);
+  const unvisited = unvisitedCountries.map((countryA3) => countryCatalog[countryA3]);
 
   return (
     <div className={cn("flex flex-col gap-2 overflow-y-auto", { hidden: isAbridged })}>

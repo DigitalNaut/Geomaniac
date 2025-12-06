@@ -1,7 +1,7 @@
 import { faBroom } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "motion/react";
 import type { RefObject } from "react";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router";
 
 import ThinkingFace from "src/assets/images/mascot-thinking-bw.min.svg?url";
@@ -17,16 +17,10 @@ type CountryProgressProps = {
 };
 
 function CountryProgress({ correct, incorrect }: CountryProgressProps) {
-  const [adjustedCorrect, adjustedIncorrect, padEnd] = useMemo(() => {
-    const total = correct + incorrect;
-    if (total < 10) return [correct, incorrect, 10 - total];
-
-    const adjustedTotal = 10;
-    const adjustedCorrect = Math.round((correct / total) * adjustedTotal);
-    const adjustedIncorrect = adjustedTotal - adjustedCorrect;
-
-    return [adjustedCorrect, adjustedIncorrect, 0];
-  }, [correct, incorrect]);
+  const total = correct + incorrect;
+  const adjustedCorrect = total < 10 ? correct : Math.round((correct / total) * 10);
+  const adjustedIncorrect = total < 10 ? incorrect : 10 - adjustedCorrect;
+  const padEnd = total < 10 ? 10 - adjustedCorrect - adjustedIncorrect : 0;
 
   return (
     <div>
@@ -68,11 +62,7 @@ function CountryStatsCard({ countryStats }: CountryStatsProps) {
 function useDashboard() {
   const { countryStats, clearProgress } = useGuessRecord();
 
-  const countryStatsList: GuessStats[] | undefined = useMemo(() => {
-    const countryValues = Object.values(countryStats);
-
-    return countryValues.sort((a, b) => a.GEOUNIT.localeCompare(b.GEOUNIT));
-  }, [countryStats]);
+  const countryStatsList = Object.values(countryStats).sort((a, b) => a.GEOUNIT.localeCompare(b.GEOUNIT));
 
   return {
     countryStatsList,

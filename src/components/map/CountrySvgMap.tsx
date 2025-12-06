@@ -1,6 +1,6 @@
 import type { LeafletEventHandlerFnMap } from "leaflet";
 import type { MouseEventHandler, SVGAttributes } from "react";
-import { Fragment, useCallback, useMemo } from "react";
+import { Fragment, useCallback } from "react";
 
 import SvgMap from "src/components/common/SvgMap";
 import { useMapContext } from "src/context/Map/hook";
@@ -107,39 +107,35 @@ function useCountrySvgMap(
 ) {
   const attributes = useSvgAttributes(mapSvg, ["width", "height", "viewBox"]);
 
-  const paths = useMemo(
-    () =>
-      attributes.paths.reduce<SvgMapPaths>(
-        (acc, path) => {
-          // Check if the country is active
-          if (activeList.includes(path.id)) {
-            // Check if the country is highlighted
-            if (highlightList.includes(path.id)) {
-              acc.highlightPaths.push(path);
-              return acc;
-            }
-
-            // Check if the country was visited
-            if (visitedList.includes(path.id)) {
-              acc.visitedPaths.push(path);
-              return acc;
-            }
-
-            acc.activePaths.push(path);
-            return acc;
-          }
-
-          acc.inactivePaths.push(path);
+  const paths = attributes.paths.reduce<SvgMapPaths>(
+    (acc, path) => {
+      // Check if the country is active
+      if (activeList.includes(path.id)) {
+        // Check if the country is highlighted
+        if (highlightList.includes(path.id)) {
+          acc.highlightPaths.push(path);
           return acc;
-        },
-        {
-          highlightPaths: [],
-          visitedPaths: [],
-          activePaths: [],
-          inactivePaths: [],
-        },
-      ),
-    [attributes.paths, activeList, highlightList, visitedList],
+        }
+
+        // Check if the country was visited
+        if (visitedList.includes(path.id)) {
+          acc.visitedPaths.push(path);
+          return acc;
+        }
+
+        acc.activePaths.push(path);
+        return acc;
+      }
+
+      acc.inactivePaths.push(path);
+      return acc;
+    },
+    {
+      highlightPaths: [],
+      visitedPaths: [],
+      activePaths: [],
+      inactivePaths: [],
+    },
   );
 
   const eventHandlers: LeafletEventHandlerFnMap = {
@@ -178,7 +174,7 @@ function CountryPath({
 }: {
   path: SVGPathElement;
 } & Omit<SVGAttributes<SVGPathElement>, "path">) {
-  const d = useMemo(() => path.getAttribute("d"), [path]);
+  const d = path.getAttribute("d");
 
   if (!d) return null;
 
@@ -228,9 +224,7 @@ export function CountrySvgMap({
 
   const { scaleByZoom } = useZoomAdjustedLineStroke();
 
-  const style = useMemo(() => {
-    return { strokeWidth: scaleByZoom(3) };
-  }, [scaleByZoom]);
+  const style = { strokeWidth: scaleByZoom(3) };
 
   const handleMouseEnter: MouseEventHandler<SVGPathElement> = useCallback(
     (path) => onMouseEnter?.(path.currentTarget.getAttribute("data-a3") ?? ""),

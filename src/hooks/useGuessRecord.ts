@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 import type { CountryData } from "src/store/CountryStore/types";
 import { clearGuessHistory, pushGuessToHistory } from "src/store/UserGuessHistory/slice";
 import type { CountryGuess } from "src/store/UserGuessHistory/types";
@@ -15,7 +13,7 @@ export function useGuessRecord() {
   const guessHistory = useAppSelector((state) => state.guessHistory);
   const countryStats = useAppSelector((state) => state.guessStats);
 
-  const lastGuess = useMemo(() => guessHistory[guessHistory.length - 1], [guessHistory]);
+  const lastGuess = guessHistory[guessHistory.length - 1];
 
   const clearProgress = () => {
     dispatch(clearGuessHistory());

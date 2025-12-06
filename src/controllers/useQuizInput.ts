@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 import { useQuiz } from "src/controllers/useQuiz";
 import { useInputField } from "src/hooks/common/useInputField";
@@ -27,7 +27,7 @@ export function useQuizInput(): IActivity & {
   const dispatch = useAppDispatch();
 
   const correctAnswer = quizState.currentCountry;
-  const correctAnswerCountry = useMemo(() => (correctAnswer ? correctAnswer : null), [correctAnswer]);
+  const correctAnswerCountry = correctAnswer ? correctAnswer : null;
 
   const giveHint = () => {
     if (!correctAnswer || !correctAnswerCountry) return;

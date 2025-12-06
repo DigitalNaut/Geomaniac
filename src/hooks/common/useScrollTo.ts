@@ -49,26 +49,10 @@ export default function useScrollTo(position: "top" | "bottom") {
     return () => ref.removeEventListener("scroll", handleScroll);
   }, [checkScrollIsAtPosition, handleScroll, scrollRef]);
 
-  const scrollToPosition = useMemo(() => {
-    switch (position) {
-      case "top":
-        return () =>
-          scrollRef.current?.scrollTo({
-            behavior: "smooth",
-            top: 0,
-          });
-
-      case "bottom":
-        return () =>
-          scrollRef.current?.scrollTo({
-            behavior: "smooth",
-            top: scrollRef.current.scrollHeight,
-          });
-
-      default:
-        return () => undefined;
-    }
-  }, [position, scrollRef]);
+  const scrollToPosition =
+    position === "top"
+      ? () => scrollRef.current?.scrollTo({ top: 0 })
+      : () => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
 
   return {
     scrollRef,

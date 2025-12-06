@@ -2,7 +2,8 @@ import { faForwardStep, faQuestionCircle } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Variants } from "motion/react";
 import { motion } from "motion/react";
-import { type KeyboardEvent, type PropsWithChildren, type RefObject, useCallback, useMemo, useState } from "react";
+import type { KeyboardEvent, PropsWithChildren, RefObject } from "react";
+import { useCallback, useState } from "react";
 
 import { InlineButton } from "src/components/activity/InlineButton";
 import { ActionButton } from "src/components/common/ActionButton";
@@ -47,7 +48,7 @@ function QuizPointerSection({ children }: PropsWithChildren) {
 function CountryFlag({ a2 }: { a2?: string }) {
   const [error, setError] = useState<Error | null>(null);
 
-  const src = useMemo(() => (a2 ? `https://flagcdn.com/${a2.toLocaleLowerCase()}.svg` : undefined), [a2]);
+  const src = a2 ? `https://flagcdn.com/${a2.toLocaleLowerCase()}.svg` : undefined;
 
   if (error) {
     return <img className="h-[2.4rem] w-16 p-1" src={unknownFlag} loading="lazy" width={64} height={38.4} />;

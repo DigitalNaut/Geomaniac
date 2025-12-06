@@ -1,5 +1,4 @@
 import type { SVGAttributes } from "react";
-import { useMemo } from "react";
 
 const parser = new DOMParser();
 
@@ -11,23 +10,19 @@ export function useSvgAttributes<K extends keyof SVGAttributes<SVGElement>, R = 
   svg: string,
   attributes: K[],
 ) {
-  const doc = useMemo(() => parser.parseFromString(svg, "image/svg+xml"), [svg]);
+  const doc = parser.parseFromString(svg, "image/svg+xml");
 
-  const errorNode = useMemo(() => doc.querySelector("parsererror"), [doc]);
+  const errorNode = doc.querySelector("parsererror");
   if (errorNode) throw new Error(`Invalid SVG: ${errorNode.textContent}`);
 
   // Parse the paths and bounds
-  const paths = useMemo(() => Array.from(doc.querySelectorAll("path")), [doc]);
+  const paths = Array.from(doc.querySelectorAll("path"));
 
   // Extract the attributes from the SVG
-  const extractedAttributes: R = useMemo(() => {
-    const record = attributes.reduce<R>(
-      (acc, attribute) => ({ ...acc, [attribute]: doc.documentElement.getAttribute(attribute) }),
-      {} as R,
-    );
-
-    return record;
-  }, [attributes, doc.documentElement]);
+  const extractedAttributes = attributes.reduce<R>(
+    (acc, attribute) => ({ ...acc, [attribute]: doc.documentElement.getAttribute(attribute) }),
+    {} as R,
+  );
 
   return { paths, ...extractedAttributes, attributes: doc.documentElement.attributes };
 }

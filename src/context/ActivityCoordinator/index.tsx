@@ -36,21 +36,14 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const inputQuiz = useQuizInput();
   const review = useReview();
 
-  const currentActivityState = useMemo(
-    () => (activity?.activity ? countryStore[activity.activity] : null),
-    [activity, countryStore],
-  );
+  const currentActivityState = activity?.activity ? countryStore[activity.activity] : null;
 
-  const visitedCountries = useMemo<string[]>(() => {
-    if (!currentActivityState) return [];
+  const visitedCountries = currentActivityState?.visitedCountries ?? [];
 
-    return currentActivityState.visitedCountries;
-  }, [currentActivityState]);
-
-  const currentContinentSelector = useMemo(() => selectCurrentContinent(activity?.activity), [activity?.activity]);
+  const currentContinentSelector = selectCurrentContinent(activity?.activity);
   const currentContinent = useAppSelector(currentContinentSelector);
 
-  const currentCountryDataSelector = useMemo(() => selectCurrentCountryData(activity?.activity), [activity?.activity]);
+  const currentCountryDataSelector = selectCurrentCountryData(activity?.activity);
   const currentCountryData = useAppSelector(currentCountryDataSelector);
 
   const unvisitedCountries = useMemo<string[]>(() => {

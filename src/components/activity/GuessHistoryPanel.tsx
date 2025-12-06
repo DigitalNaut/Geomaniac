@@ -1,7 +1,6 @@
 import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "motion/react";
-import { useMemo } from "react";
 import { twJoin, twMerge } from "tailwind-merge";
 
 import useScrollTo from "src/hooks/common/useScrollTo";
@@ -10,14 +9,8 @@ import type { GuessHistory } from "src/store/UserGuessHistory/types";
 export default function GuessHistoryPanel({ guessHistory }: { guessHistory: GuessHistory }) {
   const { isScrolledToPosition, scrollToPosition, scrollRef } = useScrollTo("top");
 
-  const [guessList, latestGuess] = useMemo(() => {
-    if (guessHistory.length === 0) return [];
-
-    const last = guessHistory.slice(-1)[0];
-    const entriesMinusLast = guessHistory.slice(0, -1);
-
-    return [entriesMinusLast, last];
-  }, [guessHistory]);
+  const guessList = guessHistory.slice(0, -1);
+  const latestGuess = guessHistory.slice(-1).at(0);
 
   return (
     <div className="relative flex flex-col gap-2 overflow-y-auto">
