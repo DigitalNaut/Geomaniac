@@ -31,7 +31,7 @@ function DetailFloatingPanel({
       exit="hidden"
     >
       <details
-        className="rounded-md bg-sky-900/70 p-3 pr-0 shadow-md backdrop-blur-md hover:bg-sky-900"
+        className="rounded-md bg-sky-900/70 p-2 shadow-md backdrop-blur-md hover:bg-sky-900"
         open={showDetails}
         onToggle={(event) => setShowDetails(event.currentTarget.open)}
       >
@@ -59,7 +59,7 @@ export function WikipediaFloatingPanel({ onError }: { onError: (error: Error) =>
   );
 }
 
-export function UnsplashImagesFloatingPanel({ onError }: { onError: (error: Error) => void }) {
+export function UnsplashImagesFloatingPanel() {
   return (
     <DetailFloatingPanel
       summary={
@@ -71,7 +71,9 @@ export function UnsplashImagesFloatingPanel({ onError }: { onError: (error: Erro
       }
       className="right-16"
     >
-      <UnsplashImages onError={onError} />
+      <section className="pt-2">
+        <UnsplashImages />
+      </section>
     </DetailFloatingPanel>
   );
 }

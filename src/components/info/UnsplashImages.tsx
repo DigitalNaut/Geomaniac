@@ -2,8 +2,7 @@ import { faExternalLink, faExternalLinkAlt } from "@fortawesome/free-solid-svg-i
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosRequestConfig } from "axios";
-import { AnimatePresence, motion, type Variants } from "motion/react";
-import { useEffect } from "react";
+import { motion } from "motion/react";
 import Masonry from "react-responsive-masonry";
 
 import useEdgeKeys from "src/hooks/useEdgeKeys";
@@ -12,30 +11,16 @@ import { useAppSelector } from "src/store/hooks";
 import type { UnsplashSearchResponse } from "src/types/unsplash";
 
 const unsplashApiURL = "https://api.unsplash.com";
-const unsplashSearch = `${unsplashApiURL}/search/photos?query=`;
+const unsplashSearch = `${unsplashApiURL}/search/photos?`;
 
-const newImageSearchParams = (query = "") =>
-  new URLSearchParams({
-    query,
-  });
-
-const overlayVariants: Variants = {
-  initial: {
-    opacity: 0,
-    onAnimationEnd: () => ({ display: "none" }),
-  },
-  hover: {
-    opacity: 1,
-    display: "flex",
-  },
-};
-
-export function UnsplashImages({ onError }: { onError: (error: Error) => void }) {
+export function UnsplashImages() {
   const { data: keys } = useEdgeKeys();
   const currentCountry = useAppSelector(selectCurrentCountryData("review"));
 
   const currentCountryData = currentCountry ? currentCountry : null;
-  const query = newImageSearchParams(currentCountryData?.GEOUNIT);
+  const query = new URLSearchParams({
+    query: currentCountryData?.GEOUNIT ?? "",
+  });
 
   const config: AxiosRequestConfig = {
     headers: {
@@ -50,76 +35,86 @@ export function UnsplashImages({ onError }: { onError: (error: Error) => void })
     enabled: !!keys?.unsplash.accessKey && !!currentCountryData?.GEOUNIT,
   });
 
-  useEffect(() => {
-    if (error) onError(error);
-  }, [error, onError]);
-
-  if (error) return <p className="rounded-md bg-sky-900 p-3">Images are unavailable at the moment.</p>;
+  if (error)
+    return (
+      <p className="rounded-md bg-sky-900 p-6 text-center">
+        <span>Images are unavailable at the moment.</span>
+        {error.message && (
+          <>
+            <br />
+            <span>({error.message})</span>
+          </>
+        )}
+      </p>
+    );
 
   if (isLoading)
     return <div className="rounded-md bg-sky-900 p-3">Loading images for {currentCountryData?.GEOUNIT}...</div>;
 
+  if (!data || data.results.length === 0) {
+    return <p className="rounded-md bg-sky-900 p-6">No images found for {currentCountryData?.GEOUNIT}.</p>;
+  }
+
   return (
-    <section className="pt-2">
+    <>
       <div className="scrollbar-thin scrollbar-track-sky-900 scrollbar-thumb-sky-700 flex max-h-[60vh] min-w-[20vw] overflow-y-auto">
-        {data?.results.length && (
+        {data.results.length > 0 && (
           <Masonry columnsCount={2}>
             {data.results.map((image) => (
-              <motion.div key={image.id} whileHover="hover" transition={{ duration: 0.05 }} variants={overlayVariants}>
+              <motion.div
+                key={image.id}
+                transition={{ duration: 0.5 }}
+                initial={{
+                  opacity: 0,
+                }}
+                animate={{
+                  opacity: 1,
+                }}
+                exit={{
+                  opacity: 0,
+                }}
+              >
                 <div className="peer/image group/label relative h-auto w-full" key={image.id}>
                   <img src={image.urls.thumb} alt={image.alt_description} loading="lazy" />
-
-                  <div className="absolute inset-x-0 bottom-0 flex-col border-t border-white/10 bg-linear-to-b from-slate-950/30 to-blue-500/30 p-4 text-right opacity-0 backdrop-blur-md transition-opacity duration-200 ease-out group-hover/label:opacity-100">
-                    <div className="text-sm">
-                      <span>Photo by&ensp;</span>
-                      <a
-                        className="underline"
-                        href={`https://unsplash.com/@${image.user.username}?utm_source=Geomaniac&utm_medium=referral`}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="Visit Unsplash profile"
-                      >
-                        {image.user.name}
-                      </a>
+                  <a
+                    className="absolute inset-0 flex size-full items-center justify-center text-xs shadow-xs"
+                    href={image.links.html}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="View on Unsplash"
+                  >
+                    <div className="flex size-full items-center justify-center bg-linear-to-b from-slate-950/30 to-blue-500/30 opacity-0 backdrop-blur-xs transition-opacity duration-200 ease-out group-hover/label:opacity-100">
+                      View original&ensp;
+                      <FontAwesomeIcon icon={faExternalLinkAlt} />
                     </div>
-                    <div className="rounded-bl-md text-xs shadow-xs">
-                      <a
-                        className="hover:underline"
-                        href={image.links.html}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="View on Unsplash"
-                      >
-                        View original&ensp;
-                        <FontAwesomeIcon icon={faExternalLinkAlt} />
-                      </a>
-                    </div>
-                  </div>
+                  </a>
                 </div>
 
-                <AnimatePresence>
-                  <motion.div
-                    className="pointer-events-none absolute inset-0 z-10 hidden -translate-x-full items-center justify-center"
-                    key={image.id}
-                    variants={overlayVariants}
-                  >
+                <div
+                  className="pointer-events-none absolute inset-0 z-10 flex -translate-x-full items-center justify-center opacity-0 duration-250 peer-hover/image:opacity-100"
+                  key={image.id + "hover"}
+                >
+                  <div className="flex flex-col rounded-sm bg-white shadow-md">
                     <img
-                      className="max-h-full max-w-full rounded-md bg-white p-2 shadow-md"
+                      className="max-h-full max-w-full rounded-md p-2"
                       src={image.urls.regular}
                       alt={image.alt_description}
                       width={image.width}
                       loading="lazy"
                       decoding="async"
                     />
-                  </motion.div>
-                </AnimatePresence>
+                    <div className="rounded-b-sm p-2 text-sm text-slate-900">
+                      <span>Photo by {image.user.name}</span>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </Masonry>
         )}
       </div>
 
-      <span className="flex items-baseline justify-end border-t-2 border-sky-800 p-2 pt-2 text-blue-300">
+      <span className="flex items-baseline justify-end border-t-2 border-sky-800 p-2 text-xs text-blue-300">
         Courtesy of&nbsp;
         <a
           className="mr-2 flex items-center justify-end gap-1 hover:underline"
@@ -131,6 +126,6 @@ export function UnsplashImages({ onError }: { onError: (error: Error) => void })
         </a>
         <FontAwesomeIcon icon={faExternalLink} />
       </span>
-    </section>
+    </>
   );
 }

@@ -364,7 +364,7 @@ function ActivityMap({
                 disabled={!currentCountry}
               />
               <WikipediaFloatingPanel key="wikipedia-floating-panel" onError={setError} />
-              <UnsplashImagesFloatingPanel key="unsplash-floating-panel" onError={setError} />
+              <UnsplashImagesFloatingPanel key="unsplash-floating-panel" />
             </>
           )}
         </AnimatePresence>
