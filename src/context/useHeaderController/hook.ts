@@ -4,14 +4,16 @@ import { useHeaderControllerContext } from "./context";
 import type { Callback } from "./types";
 
 export function useHeaderController(callback?: Callback) {
-  const { clickCallback } = useHeaderControllerContext();
+  const { clickCallbackRef } = useHeaderControllerContext();
 
   useEffect(() => {
     if (!callback) return undefined;
 
-    clickCallback.current = callback;
-    return () => (clickCallback.current = undefined);
-  }, [callback, clickCallback]);
+    clickCallbackRef.current = callback;
+    return () => {
+      clickCallbackRef.current = undefined;
+    };
+  }, [callback, clickCallbackRef]);
 
-  return { clickCallback };
+  return { clickCallback: clickCallbackRef };
 }

@@ -8,7 +8,7 @@ type ActivityCoordinatorContextType = {
   inputRef: RefObject<HTMLInputElement | null>;
   giveHint: () => void;
   handleMapClick: (a3?: string) => void;
-  setContinent: (region: string) => void;
+  setContinent: (continent: string) => void;
   visitedCountries: string[];
   unvisitedCountries: string[];
   currentActivityState: ActivityState | null;

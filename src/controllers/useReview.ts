@@ -97,7 +97,6 @@ export function useReview(): IActivity & {
 
     if (countryInUrl.length === 0) {
       deleteFromSearchParams("country");
-
       return nextCountry();
     }
 

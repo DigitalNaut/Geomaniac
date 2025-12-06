@@ -5,12 +5,12 @@ import { UserSettingsContext } from "./context";
 import type { Callback } from "./types";
 
 export function HeaderControllerProvider({ children }: PropsWithChildren) {
-  const clickCallback = useRef<Callback>(undefined);
+  const clickCallbackRef = useRef<Callback>(undefined);
 
   return (
     <UserSettingsContext
       value={{
-        clickCallback,
+        clickCallbackRef,
       }}
     >
       {children}

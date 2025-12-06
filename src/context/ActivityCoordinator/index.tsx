@@ -67,13 +67,16 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const guessTally = useMemo(() => {
     if (!activity) return 0;
 
-    const strategies: ActivityKindStrategy<number> = {
-      pointing: () => clickQuiz.userGuessTally,
-      typing: () => inputQuiz.userGuessTally,
-      countries: () => 0,
-    };
-
-    return strategies[activity.kind]?.();
+    switch (activity.kind) {
+      case "pointing":
+        return clickQuiz.userGuessTally;
+      case "typing":
+        return inputQuiz.userGuessTally;
+      case "countries":
+        return 0;
+      default:
+        return 0;
+    }
   }, [activity, clickQuiz, inputQuiz]);
 
   /**
@@ -114,13 +117,17 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     if (!activity || !a3) return;
     if (countryCatalog[a3]?.CONTINENT !== currentContinent) return;
 
-    const strategies: ActivityKindStrategy = {
-      countries: () => focusViewportCountry(review.setCurrentCountry(a3), 100, false),
-      typing: () => focusViewportCountry(currentCountryData),
-      pointing: () => focusViewportContinent(clickQuiz.submitClick(a3)?.CONTINENT),
-    };
-
-    strategies[activity.kind]?.();
+    switch (activity.kind) {
+      case "countries":
+        focusViewportCountry(review.setCurrentCountry(a3), 100, false);
+        break;
+      case "typing":
+        focusViewportCountry(currentCountryData);
+        break;
+      case "pointing":
+        focusViewportContinent(clickQuiz.submitClick(a3)?.CONTINENT);
+        break;
+    }
   };
 
   const setContinent = (continent: string) => {
@@ -135,14 +142,24 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
       }),
     );
 
-    const strategies: ActivityKindStrategy<CountryData | null> = {
-      countries: () => review.start(),
-      typing: () => inputQuiz.start(),
-      pointing: () => clickQuiz.start(),
-    };
+    switch (activity.kind) {
+      case "countries": {
+        review.start();
+        break;
+      }
+      case "typing": {
+        inputQuiz.start();
+        break;
+      }
+      case "pointing": {
+        clickQuiz.start();
+        break;
+      }
+    }
 
-    const country = strategies[activity.kind]?.();
-    focusViewportContinent(country?.CONTINENT, true);
+    if (country) {
+      focusViewportContinent(country?.CONTINENT, true);
+    }
   };
 
   const giveHint = () => {
@@ -162,25 +179,25 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const nextCountry = () => {
     if (!activity) return null;
 
-    const strategies: ActivityKindStrategy<CountryData | null> = {
-      countries: () => {
-        const nextCountry = review.nextCountry();
-        focusViewportCountry(nextCountry, 100);
-        return nextCountry;
-      },
-      typing: () => {
-        const nextCountry = inputQuiz.nextCountry();
-        focusViewportContinent(nextCountry?.CONTINENT);
-        return nextCountry;
-      },
-      pointing: () => {
-        const nextCountry = clickQuiz.nextCountry();
-        focusViewportContinent(nextCountry?.CONTINENT);
-        return nextCountry;
-      },
-    };
-
-    return strategies[activity.kind]?.();
+    switch (activity.kind) {
+      case "countries": {
+        const country = review.nextCountry();
+        focusViewportCountry(country);
+        return country;
+      }
+      case "typing": {
+        const country = inputQuiz.nextCountry();
+        focusViewportContinent(country?.CONTINENT);
+        return country;
+      }
+      case "pointing": {
+        const country = clickQuiz.nextCountry();
+        focusViewportContinent(country?.CONTINENT);
+        return country;
+      }
+      default:
+        return null;
+    }
   };
 
   const setCurrentCountry = (countryA3: string) => {
@@ -202,40 +219,45 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const submitAnswer = () => {
     if (!activity) return null;
 
-    const strategies: ActivityKindStrategy<CountryData | null> = {
-      countries: () => null,
-      typing: () => inputQuiz.submitInput(),
-      pointing: () => null,
-    };
+    if (activity.kind === "typing") {
+      const nextCountry = inputQuiz.submitInput();
+      focusViewportCountry(nextCountry);
+      return nextCountry;
+    }
 
-    const nextCountry = strategies[activity.kind]?.();
-    focusViewportCountry(nextCountry);
-
-    return nextCountry;
+    return null;
   };
 
   const reset = useCallback(() => {
     if (!activity) return;
 
-    const strategies: ActivityKindStrategy = {
-      countries: () => review.reset(),
-      typing: () => inputQuiz.reset(),
-      pointing: () => clickQuiz.reset(),
-    };
-
-    strategies[activity.kind]?.();
+    switch (activity.kind) {
+      case "countries":
+        review.reset();
+        break;
+      case "typing":
+        inputQuiz.reset();
+        break;
+      case "pointing":
+        clickQuiz.reset();
+        break;
+    }
   }, [activity, clickQuiz, inputQuiz, review]);
 
   useActivityTracker((prevActivity, currentActivity) => {
     const isNewActivity = prevActivity === null && currentActivity !== null;
     if (isNewActivity) {
-      const strategies: ActivityKindStrategy = {
-        countries: () => review.resume(),
-        typing: () => inputQuiz.resume(),
-        pointing: () => clickQuiz.resume(),
-      };
-
-      strategies[currentActivity.kind]?.();
+      switch (currentActivity.kind) {
+        case "countries":
+          review.start();
+          break;
+        case "typing":
+          inputQuiz.start();
+          break;
+        case "pointing":
+          clickQuiz.start();
+          break;
+      }
 
       focusViewportContinent(currentContinent);
     }

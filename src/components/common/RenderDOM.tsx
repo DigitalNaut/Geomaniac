@@ -33,7 +33,7 @@ function useDOMParser(input = "") {
 }
 
 export function RenderDOM({ className, input }: { className?: string; input: string }) {
-  const { doc, error } = useDOMParser(input);
+  const { doc, error } = useMemo(() => parseInput(input), [input]);
 
   const htmlSections = useMemo(() => doc?.childNodes[0].childNodes, [doc]);
 
@@ -44,7 +44,9 @@ export function RenderDOM({ className, input }: { className?: string; input: str
       </div>
     );
 
-  return !htmlSections ? null : (
+  if (!htmlSections) return null;
+
+  return (
     <>
       {Object.values(htmlSections).map((node, key) =>
         node instanceof Element && node.tagName && node.textContent?.length
