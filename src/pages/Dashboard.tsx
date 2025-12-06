@@ -42,7 +42,7 @@ function CountryStatsCard({ countryStats }: CountryStatsProps) {
       title={`${countryStats.GEOUNIT}\nCorrect: ${countryStats.correctGuesses}\nIncorrect: ${countryStats.incorrectGuesses}`}
     >
       <img
-        className="h-[2.4rem] w-16 p-1 before:block before:h-[2.4rem] before:w-16 before:bg-custom-unknown-flag"
+        className="before:bg-custom-unknown-flag h-[2.4rem] w-16 p-1 before:block before:h-[2.4rem] before:w-16"
         src={
           countryStats.ISO_A2_EH ? `https://flagcdn.com/${countryStats.ISO_A2_EH.toLocaleLowerCase()}.svg` : unknownFlag
         }
@@ -52,7 +52,7 @@ function CountryStatsCard({ countryStats }: CountryStatsProps) {
         height={38.4}
       />
       <div>
-        <div className="line-clamp-2 w-32 text-ellipsis text-sm">{countryStats.GEOUNIT}</div>
+        <div className="line-clamp-2 w-32 text-sm text-ellipsis">{countryStats.GEOUNIT}</div>
         <CountryProgress correct={countryStats.correctGuesses} incorrect={countryStats.incorrectGuesses} />
       </div>
     </div>

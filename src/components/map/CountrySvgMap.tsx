@@ -70,7 +70,7 @@ function WithWaveAnimationDefs() {
         </g>
       </pattern>
 
-      <circle width="9" height="9" r="1" stroke="none" className="fill-white/[6%]" />
+      <circle width="9" height="9" r="1" stroke="none" className="fill-white/6" />
       <pattern
         id="land"
         patternUnits="userSpaceOnUse"
@@ -79,15 +79,15 @@ function WithWaveAnimationDefs() {
         height="9"
         patternTransform="scale(0.25) rotate(45 3 3)"
       >
-        <ellipse rx="0.55" ry="0.25" cx="2" cy="2" stroke="none" className="fill-white/[6%]" />
-        <ellipse rx="0.25" ry="0.55" cx="5" cy="2" stroke="none" className="fill-white/[9%]" />
-        <ellipse rx="0.55" ry="0.25" cx="8" cy="2" stroke="none" className="fill-white/[6%]" />
-        <ellipse rx="0.25" ry="0.55" cx="2" cy="5" stroke="none" className="fill-white/[9%]" />
-        <ellipse rx="0.55" ry="0.25" cx="5" cy="5" stroke="none" className="fill-white/[6%]" />
-        <ellipse rx="0.25" ry="0.55" cx="8" cy="5" stroke="none" className="fill-white/[9%]" />
-        <ellipse rx="0.55" ry="0.25" cx="2" cy="8" stroke="none" className="fill-white/[6%]" />
-        <ellipse rx="0.25" ry="0.55" cx="5" cy="8" stroke="none" className="fill-white/[9%]" />
-        <ellipse rx="0.55" ry="0.25" cx="8" cy="8" stroke="none" className="fill-white/[6%]" />
+        <ellipse rx="0.55" ry="0.25" cx="2" cy="2" stroke="none" className="fill-white/6" />
+        <ellipse rx="0.25" ry="0.55" cx="5" cy="2" stroke="none" className="fill-white/9" />
+        <ellipse rx="0.55" ry="0.25" cx="8" cy="2" stroke="none" className="fill-white/6" />
+        <ellipse rx="0.25" ry="0.55" cx="2" cy="5" stroke="none" className="fill-white/9" />
+        <ellipse rx="0.55" ry="0.25" cx="5" cy="5" stroke="none" className="fill-white/6" />
+        <ellipse rx="0.25" ry="0.55" cx="8" cy="5" stroke="none" className="fill-white/9" />
+        <ellipse rx="0.55" ry="0.25" cx="2" cy="8" stroke="none" className="fill-white/6" />
+        <ellipse rx="0.25" ry="0.55" cx="5" cy="8" stroke="none" className="fill-white/9" />
+        <ellipse rx="0.55" ry="0.25" cx="8" cy="8" stroke="none" className="fill-white/6" />
       </pattern>
     </defs>
   );
