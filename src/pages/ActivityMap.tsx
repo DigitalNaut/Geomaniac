@@ -89,11 +89,11 @@ const labelVariants: Variants = {
 };
 
 function CountryLabel({
-  mapPixelPosition: { top, left },
+  mapOffset,
   state: { labelGeounit, isCurrentCountry, geounitHovered, adminHovered, regionHovered, sovereigntHovered },
   actions: { onClick, changeHovered, projectFn },
 }: {
-  mapPixelPosition: {
+  mapOffset: {
     top: number;
     left: number;
   };
@@ -113,7 +113,7 @@ function CountryLabel({
 }) {
   const { countryData, position, sovereignt, admin } = useMemo(() => {
     const countryData = countryCatalog[labelGeounit];
-    const position = projectFn?.(getLabelCoordinates(countryData));
+    const position = projectFn(getLabelCoordinates(countryData));
 
     const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
 
@@ -128,7 +128,7 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-lime-700 transition [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-lime-700 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
           "bg-slate-200 text-slate-900 drop-shadow-md": regionHovered === countryData.SUBREGION,
           "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
@@ -141,7 +141,7 @@ function CountryLabel({
       title={`Sovereignt: ${countryData.SOVEREIGNT}\nAdmin: ${countryData.ADMIN}\nGeounit: ${countryData.GEOUNIT}`}
       key={labelGeounit}
       style={{
-        transform: `translate(${position.x - left}px, ${position.y - top}px)`,
+        transform: `translate(${position.x - mapOffset.left}px, ${position.y - mapOffset.top}px)`,
       }}
       onClick={onClick}
       onMouseEnter={() => changeHovered(labelGeounit)}
@@ -169,42 +169,57 @@ function CountryLabel({
   );
 }
 
+type MapPixelPosition = { top: number; left: number };
+
+function getMinBoundPositions(map: Map | undefined) {
+  if (!map) return null;
+
+  const bounds = map.getPixelBounds().min;
+  if (!bounds) return null;
+
+  return {
+    top: bounds.y,
+    left: bounds.x,
+  };
+}
+
 function useMapPixelPosition() {
   const { map } = useMapContext();
-  const [mapPixelPosition, setMapPixelPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [mapPixelBounds, setMapPixelBounds] = useState<MapPixelPosition | null>(() => null);
+
+  const resetSvgLabelPositions = useCallback(() => {
+    setMapPixelBounds(null);
+  }, []);
 
   const updateSvgLabelPositions = useCallback(() => {
-    if (!map) return;
-
-    const minBounds = map.getPixelBounds().min;
-    if (!minBounds) return;
-
-    setMapPixelPosition({
-      top: minBounds.y,
-      left: minBounds.x,
-    });
+    setMapPixelBounds(getMinBoundPositions(map));
   }, [map]);
 
   useEffect(
     function manageSvgLabelPositions() {
       if (map) {
-        map.addEventListener("move", updateSvgLabelPositions);
-        map.addEventListener("zoomanim", updateSvgLabelPositions);
+        map.on("movestart", resetSvgLabelPositions);
+        map.on("zoomstart", resetSvgLabelPositions);
+        map.on("moveend", updateSvgLabelPositions);
+        map.on("zoomend", updateSvgLabelPositions);
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- This is fine, the effect has no circular dependencies
         updateSvgLabelPositions();
       }
 
       return () => {
         if (map) {
-          map.removeEventListener("move", updateSvgLabelPositions);
-          map.removeEventListener("zoomanim", updateSvgLabelPositions);
+          map.off("movestart", resetSvgLabelPositions);
+          map.off("zoomstart", resetSvgLabelPositions);
+          map.off("moveend", updateSvgLabelPositions);
+          map.off("zoomend", updateSvgLabelPositions);
         }
       };
     },
-    [map, updateSvgLabelPositions],
+    [map, resetSvgLabelPositions, updateSvgLabelPositions],
   );
 
-  return mapPixelPosition;
+  return mapPixelBounds;
 }
 
 function useHoveredCountry() {
@@ -277,7 +292,7 @@ function ActivityMap({
     };
   }, [activity?.kind, currentContinent, currentCountry, visitedCountries]);
 
-  const mapPixelPosition = useMapPixelPosition();
+  const mapOffset = useMapPixelPosition();
 
   const { hovered, changeHovered, resetHovered } = useHoveredCountry();
 
@@ -317,10 +332,11 @@ function ActivityMap({
 
         {activity?.activity === "review" &&
           map &&
+          mapOffset &&
           visitedCountries.map((country) => (
             <CountryLabel
               key={country}
-              mapPixelPosition={mapPixelPosition}
+              mapOffset={mapOffset}
               state={{
                 labelGeounit: country,
                 isCurrentCountry: currentCountry?.GU_A3 === country,
