@@ -17,7 +17,7 @@ const unsplashSearch = `${unsplashApiURL}/search/photos?`;
 export function UnsplashImages() {
   const { data: keys } = useEdgeKeys();
   const currentCountry = useAppSelector(selectCurrentCountryData("review"));
-  const [currentImage, setCurrentImage] = useState<UnsplashSearchResult | null>(null);
+  const [hoveredImage, setHoveredImage] = useState<UnsplashSearchResult | null>(null);
 
   const currentCountryData = currentCountry ? currentCountry : null;
   const query = new URLSearchParams({
@@ -77,6 +77,7 @@ export function UnsplashImages() {
                   loading="lazy"
                   width={image.width}
                   height={image.height}
+                  title={image.alt_description}
                 />
                 <a
                   className="absolute inset-0 flex size-full items-center justify-center text-xs shadow-xs"
@@ -84,8 +85,8 @@ export function UnsplashImages() {
                   target="_blank"
                   rel="noreferrer"
                   title="View on Unsplash"
-                  onMouseOver={() => setCurrentImage(image)}
-                  onMouseOut={() => setCurrentImage(null)}
+                  onMouseOver={() => setHoveredImage(image)}
+                  onMouseOut={() => setHoveredImage(null)}
                 >
                   <div className="flex size-full items-center justify-center bg-linear-to-b from-slate-950/30 to-blue-500/30 opacity-0 backdrop-blur-xs transition-opacity duration-200 ease-out group-hover/label:opacity-100">
                     View original&ensp;
@@ -112,10 +113,10 @@ export function UnsplashImages() {
       </span>
 
       <AnimatePresence>
-        {currentImage && (
+        {hoveredImage && (
           <motion.div
             className="pointer-events-none absolute inset-0 z-10 flex -translate-x-full items-center justify-center"
-            key={currentImage.id + currentImage.urls.regular}
+            key={hoveredImage.id + hoveredImage.urls.regular}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -123,15 +124,15 @@ export function UnsplashImages() {
             <div className="flex flex-col rounded-sm bg-white shadow-md">
               <img
                 className="max-h-full max-w-full rounded-md p-2"
-                src={currentImage.urls.regular}
-                alt={currentImage.alt_description}
-                width={currentImage.width}
-                height={currentImage.height}
+                src={hoveredImage.urls.regular}
+                alt={hoveredImage.alt_description}
+                width={hoveredImage.width}
+                height={hoveredImage.height}
                 loading="lazy"
                 decoding="async"
               />
               <div className="px-2 py-1 text-sm text-slate-900">
-                <span>Photo by {currentImage.user.name}</span>
+                <span>Photo by {hoveredImage.user.name}</span>
               </div>
             </div>
           </motion.div>
