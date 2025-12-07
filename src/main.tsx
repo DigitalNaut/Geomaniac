@@ -5,8 +5,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import App from "src/App";
 import ErrorFallback from "src/components/common/ErrorFallback";
 
-import "src/styles/output.css";
-
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <ErrorBoundary FallbackComponent={ErrorFallback}>

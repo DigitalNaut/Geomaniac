@@ -23,13 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Generated
+# Environment
 .env*
+!.env.example
+.netlify
+
+# Generated
 .flaskenv*
 *.tsbuildinfo
-
-# User created
-/src/styles/output.css
-!.env.example
-# Local Netlify folder
-.netlify

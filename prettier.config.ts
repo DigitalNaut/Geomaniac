@@ -8,7 +8,7 @@ const config: Config = {
   plugins: ["prettier-plugin-tailwindcss"],
 
   // See: https://github.com/tailwindlabs/prettier-plugin-tailwindcss
-  tailwindStylesheet: "./src/styles/input.css",
+  tailwindStylesheet: "./src/styles/main.css",
   tailwindPreserveWhitespace: false,
   tailwindFunctions: ["clsx", "twMerge", "twJoin", "cn", "tw"],
 };

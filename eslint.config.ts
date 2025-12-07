@@ -64,7 +64,7 @@ export default defineConfig(
         callees: ["twMerge", "twJoin", "cn", "tw"], // Defaults: ["classnames", "clsx", "ctl"] See: https://www.npmjs.com/package/eslint-plugin-tailwindcss#more-settings
       },
       "better-tailwindcss": {
-        entryPoint: "src/styles/input.css",
+        entryPoint: "src/styles/main.css",
       },
     },
   },

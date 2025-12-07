@@ -15,15 +15,7 @@
   --font-*: initial;
   --font-paytone: Paytone One, sans-serif;
 
-  --animate-scroll-dash: scrollDash 8s linear infinite;
-
   --background-image-custom-unknown-flag: url("src/assets/images/unknown-flag.min.svg");
-
-  @keyframes scrollDash {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
 }
 
 /*
