@@ -84,21 +84,21 @@ const labelVariants: Variants = {
   exit: {
     height: 0,
     opacity: 0,
-    transitionEnd: { display: "none" },
   },
 };
 
 function CountryLabel({
   mapOffset,
-  state: { labelGeounit, isCurrentCountry, geounitHovered, adminHovered, regionHovered, sovereigntHovered },
+  countryCode,
+  state: { isCurrentCountry, geounitHovered, adminHovered, regionHovered, sovereigntHovered },
   actions: { onClick, changeHovered, projectFn },
 }: {
   mapOffset: {
     top: number;
     left: number;
   };
+  countryCode: string;
   state: {
-    labelGeounit: string;
     isCurrentCountry: boolean;
     geounitHovered?: string;
     regionHovered?: string;
@@ -111,7 +111,7 @@ function CountryLabel({
     projectFn: Map["project"];
   };
 }) {
-  const countryData = countryCatalog[labelGeounit];
+  const countryData = countryCatalog[countryCode];
   const position = projectFn(getLabelCoordinates(countryData));
   const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
   const admin =
@@ -122,23 +122,23 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/30 outline-0 outline-lime-700 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/0 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
-          "bg-slate-200 text-slate-900 drop-shadow-md": regionHovered === countryData.SUBREGION,
+          "text-slate-200/80 drop-shadow-md": regionHovered === countryData.SUBREGION,
           "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
           "bg-sky-500 text-slate-200": adminHovered === countryData.ADMIN,
-          "z-401 bg-slate-200/80 text-slate-700 opacity-100": geounitHovered === labelGeounit,
-          "z-400 -translate-y-14 bg-slate-200 p-0 text-slate-900 outline-1 drop-shadow-md hover:bg-slate-300 hover:opacity-25":
+          "z-401 bg-slate-200/80 text-slate-700 opacity-100": geounitHovered === countryCode,
+          "z-400 -translate-y-14 bg-slate-200 p-0 text-slate-900 outline-1 outline-lime-700 drop-shadow-md hover:bg-slate-300 hover:opacity-25":
             isCurrentCountry,
         },
       )}
       title={`Sovereignt: ${countryData.SOVEREIGNT}\nAdmin: ${countryData.ADMIN}\nGeounit: ${countryData.GEOUNIT}`}
-      key={labelGeounit}
+      key={countryCode}
       style={{
         transform: `translate(${position.x - mapOffset.left}px, ${position.y - mapOffset.top}px)`,
       }}
       onClick={onClick}
-      onMouseEnter={() => changeHovered(labelGeounit)}
+      onMouseEnter={() => changeHovered(countryCode)}
       onMouseLeave={() => changeHovered(undefined)}
     >
       <AnimatePresence>
@@ -319,8 +319,8 @@ function ActivityMap({
             <CountryLabel
               key={country}
               mapOffset={mapOffset}
+              countryCode={country}
               state={{
-                labelGeounit: country,
                 isCurrentCountry: currentCountry?.GU_A3 === country,
                 geounitHovered: hovered?.GU_A3,
                 adminHovered: currentCountry?.ADMIN,
