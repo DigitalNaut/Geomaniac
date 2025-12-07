@@ -1,15 +1,17 @@
 import js from "@eslint/js";
-import globals from "globals";
+import pluginQuery from "@tanstack/eslint-plugin-query";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import noRelativeImports from "eslint-plugin-no-relative-import-paths";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig } from "eslint/config";
+import globals from "globals";
 import tsEslint from "typescript-eslint";
-import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-
-import noRelativeImports from "eslint-plugin-no-relative-import-paths";
-import queryExhaustiveDeps from "@tanstack/eslint-plugin-query";
 
 export default defineConfig(
+  reactHooks.configs.flat.recommended,
+  reactRefresh.configs.recommended,
+  ...pluginQuery.configs["flat/recommended"],
   { ignores: ["node_modules", "build", "dist", "coverage", "tools"] },
   {
     extends: [js.configs.recommended, ...tsEslint.configs.recommended],
@@ -18,6 +20,7 @@ export default defineConfig(
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: {
           jsx: true,
@@ -25,14 +28,10 @@ export default defineConfig(
       },
     },
     plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
       "no-relative-import-paths": noRelativeImports,
-      "@tanstack/query": queryExhaustiveDeps,
       "better-tailwindcss": eslintPluginBetterTailwindcss,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
       ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "no-console": "warn",
@@ -43,7 +42,6 @@ export default defineConfig(
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/exhaustive-deps": "warn",
       "no-use-before-define": "warn",
-      "@tanstack/query/exhaustive-deps": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
