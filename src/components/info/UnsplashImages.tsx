@@ -64,29 +64,34 @@ export function UnsplashImages() {
           <Masonry columnsCount={2}>
             {data.results.map((image) => (
               <motion.div
-                key={image.id}
+                className="peer/image group/label relative h-auto w-full"
+                key={image.id + image.urls.thumb}
                 transition={{ duration: 0.5 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="peer/image group/label relative h-auto w-full" key={image.id}>
-                  <img src={image.urls.thumb} alt={image.alt_description} loading="lazy" />
-                  <a
-                    className="absolute inset-0 flex size-full items-center justify-center text-xs shadow-xs"
-                    href={image.links.html}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="View on Unsplash"
-                    onMouseOver={() => setCurrentImage(image)}
-                    onMouseOut={() => setCurrentImage(null)}
-                  >
-                    <div className="flex size-full items-center justify-center bg-linear-to-b from-slate-950/30 to-blue-500/30 opacity-0 backdrop-blur-xs transition-opacity duration-200 ease-out group-hover/label:opacity-100">
-                      View original&ensp;
-                      <FontAwesomeIcon icon={faExternalLinkAlt} />
-                    </div>
-                  </a>
-                </div>
+                <img
+                  src={image.urls.thumb}
+                  alt={image.alt_description}
+                  loading="lazy"
+                  width={image.width}
+                  height={image.height}
+                />
+                <a
+                  className="absolute inset-0 flex size-full items-center justify-center text-xs shadow-xs"
+                  href={image.links.html}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="View on Unsplash"
+                  onMouseOver={() => setCurrentImage(image)}
+                  onMouseOut={() => setCurrentImage(null)}
+                >
+                  <div className="flex size-full items-center justify-center bg-linear-to-b from-slate-950/30 to-blue-500/30 opacity-0 backdrop-blur-xs transition-opacity duration-200 ease-out group-hover/label:opacity-100">
+                    View original&ensp;
+                    <FontAwesomeIcon icon={faExternalLinkAlt} />
+                  </div>
+                </a>
               </motion.div>
             ))}
           </Masonry>
@@ -109,8 +114,8 @@ export function UnsplashImages() {
       <AnimatePresence>
         {currentImage && (
           <motion.div
-            className="absolute inset-0 z-10 flex -translate-x-full items-center justify-center"
-            key={currentImage.id}
+            className="pointer-events-none absolute inset-0 z-10 flex -translate-x-full items-center justify-center"
+            key={currentImage.id + currentImage.urls.regular}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -121,10 +126,11 @@ export function UnsplashImages() {
                 src={currentImage.urls.regular}
                 alt={currentImage.alt_description}
                 width={currentImage.width}
+                height={currentImage.height}
                 loading="lazy"
                 decoding="async"
               />
-              <div className="rounded-b-sm p-2 text-sm text-slate-900">
+              <div className="px-2 py-1 text-sm text-slate-900">
                 <span>Photo by {currentImage.user.name}</span>
               </div>
             </div>
