@@ -19,7 +19,7 @@ type Options = {
 export function useMapViewport({ options }: { options?: Options } = {}) {
   const { useReducedMotion } = useSettings();
   const { map } = useMapContext();
-  const padding = options?.padding ?? 0.5;
+  const padding = options?.padding ?? 250;
 
   useEffect(() => {
     if (!map || !padding) return;
@@ -39,9 +39,10 @@ export function useMapViewport({ options }: { options?: Options } = {}) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
 
-    map.panTo(destination, {
+    map.panInside(destination, {
       animate,
       duration,
+      padding: [padding, padding],
     });
   };
 
