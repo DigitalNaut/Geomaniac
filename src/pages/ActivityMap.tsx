@@ -224,6 +224,19 @@ function useHoveredCountry() {
   return { hovered, changeHovered, resetHovered };
 }
 
+function useResizeObserver(target: Element | undefined, callback: ResizeObserverCallback) {
+  useEffect(() => {
+    if (!target) return undefined;
+
+    const observer = new ResizeObserver(callback);
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [target, callback]);
+}
+
 function ActivityMap({
   setError,
   onFinishActivity,
@@ -277,6 +290,8 @@ function ActivityMap({
   const mapOffset = useMapPixelPosition();
 
   const { hovered, changeHovered, resetHovered } = useHoveredCountry();
+
+  useResizeObserver(map?.getContainer(), () => map?.invalidateSize());
 
   return (
     <div
