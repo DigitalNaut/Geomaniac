@@ -446,7 +446,7 @@ export default function ActivityMapLayout() {
         </div>
 
         {activity?.activity && (
-          <motion.div className="flex h-1/5 w-max flex-col gap-6 overflow-y-auto sm:h-auto sm:w-[30ch]">
+          <motion.div className="flex h-1/5 w-max max-w-1/4 flex-col gap-6 overflow-y-auto sm:h-auto">
             <CountriesListPanel isAbridged={activity.activity === "quiz"} />
             {activity.activity === "quiz" && <GuessHistoryPanel guessHistory={guessHistory} />}
           </motion.div>

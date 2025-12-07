@@ -37,16 +37,19 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
   return (
     <div className={cn("flex flex-col gap-2 overflow-y-auto", { hidden: isAbridged })}>
       <h3 className="mb-2 text-center md:text-lg">
-        <div>Reviewing {visited.length + unvisited.length} countries in</div>
-        <div className="text-lg font-bold md:text-xl">{currentContinent}</div>
+        <div className="text-xl font-bold md:text-2xl">{currentContinent}</div>
+        <div>{visited.length + unvisited.length} countries</div>
       </h3>
 
       <div className="flex h-max flex-col gap-2 overflow-y-auto pl-2">
-        <div className="flex flex-wrap gap-2 px-2 pb-[40vh]" ref={listRef}>
+        <div
+          className="flex flex-col flex-wrap gap-2 px-2 pb-[40vh] text-xs sm:text-sm md:flex-row md:text-base"
+          ref={listRef}
+        >
           {visited.map(({ GEOUNIT, GU_A3 }) => (
             <button
               key={GU_A3}
-              className="cursor-pointer rounded-md bg-lime-700 px-2 py-1 text-white"
+              className="grow cursor-pointer rounded-md bg-lime-700 px-2 py-1 text-white"
               onClick={() => handleCountryClick(GU_A3)}
             >
               {GEOUNIT}
@@ -56,7 +59,7 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
           {unvisited.map(({ GEOUNIT, GU_A3 }) => (
             <button
               key={GU_A3}
-              className="cursor-pointer rounded-md bg-gray-600 px-2 py-1 text-white"
+              className="grow cursor-pointer rounded-md bg-gray-600 px-2 py-1 text-white"
               onClick={() => handleCountryClick(GU_A3)}
             >
               {GEOUNIT}
