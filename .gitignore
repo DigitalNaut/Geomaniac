@@ -26,8 +26,6 @@ dist-ssr
 # Generated
 .env*
 .flaskenv*
-!.env.project
-!.env.vault
 *.tsbuildinfo
 
 # User created
