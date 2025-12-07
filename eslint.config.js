@@ -18,6 +18,7 @@ export default defineConfig(
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: {
           jsx: true,
         },

@@ -2,9 +2,9 @@ import js from "@eslint/js";
 import globals from "globals";
 import tsEslint from "typescript-eslint";
 import noRelativeImports from "eslint-plugin-no-relative-import-paths";
-import queryExhaustiveDeps from "@tanstack/eslint-plugin-query";
+import { defineConfig } from "eslint/config";
 
-export default tsEslint.config(
+export default defineConfig(
   { ignores: ["dist", "coverage", "tools"] },
   {
     extends: [js.configs.recommended, ...tsEslint.configs.recommended],
@@ -12,10 +12,12 @@ export default tsEslint.config(
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     plugins: {
       "no-relative-import-paths": noRelativeImports,
-      "@tanstack/query": queryExhaustiveDeps,
     },
     rules: {
       "no-console": "off",
