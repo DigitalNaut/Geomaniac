@@ -241,19 +241,19 @@ const countryStoreSlice = createSlice({
 export const { clearQueue, addVisitedCountry } = countryStoreSlice.actions;
 export default countryStoreSlice.reducer;
 
-export function getNextCountry(activityType: keyof CountryStoreState): AppThunk<CountryData | null> {
-  return function (dispatch, getState) {
-    dispatch(countryStoreSlice.actions.nextCountryInQueue(activityType));
-    return getState().countryStore[activityType].currentCountry;
-  };
-}
-
 export function createNewQueue(
   params: Parameters<typeof countryStoreSlice.actions.newQueue>[0],
 ): AppThunk<CountryData | null> {
   return function (dispatch, getState) {
     dispatch(countryStoreSlice.actions.newQueue(params));
     return getState().countryStore[params.activityType].currentCountry;
+  };
+}
+
+export function getNextCountry(activityType: keyof CountryStoreState): AppThunk<CountryData | null> {
+  return function (dispatch, getState) {
+    dispatch(countryStoreSlice.actions.nextCountryInQueue(activityType));
+    return getState().countryStore[activityType].currentCountry;
   };
 }
 
