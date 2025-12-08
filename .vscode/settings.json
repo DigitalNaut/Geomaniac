@@ -1,9 +1,12 @@
 {
   "cSpell.words": [
     "batchcomplete",
+    "BBOX",
     "Cextracts",
+    "clsx",
     "Coriginal",
     "Cpageimages",
+    "Durstenfeld",
     "exintro",
     "fontawesome",
     "fortawesome",
@@ -11,11 +14,16 @@
     "gapi",
     "Gapi",
     "geomaniac",
+    "GEOU",
     "geounit",
     "GQIS",
     "inprop",
+    "mapshaper",
     "merc",
+    "mercator",
+    "netlify",
     "pageid",
+    "pageimages",
     "parsererror",
     "paytone",
     "piprop",
@@ -23,25 +31,55 @@
     "preinstall",
     "signin",
     "signout",
+    "sovereignt",
     "svgr",
     "tailwindcss",
     "tanstack",
     "typecheck",
+    "unsplash",
+    "WIKIDATAID",
     "wikipedia",
     "wordmark",
     "Xmark",
-    "zoomend"
+    "Zapsplat",
+    "zoomstart",
+    "zoomend",
+    "movestart",
+    "moveend"
   ],
   "dotenv.enableAutocloaking": false,
   "deno.enable": true,
   "deno.lint": true,
-  "deno.enablePaths": ["netlify/edge-functions"],
-  "deno.unstable": true,
+  "deno.enablePaths": [
+    "netlify/edge-functions"
+  ],
   "deno.importMap": ".netlify/edge-functions-import-map.json",
-  "deno.path": "C:\\Users\\hoaxy\\AppData\\Roaming\\netlify\\Config\\deno-cli\\deno.exe",
   "markdownlint.config": {
     "MD033": {
-      "allowed_elements": ["details", "summary"]
+      "allowed_elements": [
+        "details",
+        "summary"
+      ]
     }
-  }
+  },
+  "tailwindCSS.classAttributes": [
+    "className",
+    ".+(?:Theme|Style)s?.*",
+  ],
+  "tailwindCSS.experimental.classRegex": [
+    "tw\\`([^`]*)\\`",
+  ],
+  "commandOnAllFiles.commands": {
+    "Organize All Imports": {
+      "command": "multiCommand.sortImports",
+      "includeFileExtensions": [
+        ".ts",
+        ".tsx"
+      ]
+    }
+  },
+  "svg.preview.background": "editor",
+  "cSpell.ignoreWords": [
+    "zoomanim"
+  ],
 }

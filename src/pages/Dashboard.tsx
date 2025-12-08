@@ -1,14 +1,15 @@
-import { useMemo, useRef } from "react";
-import { animated, useSpring } from "@react-spring/web";
-
 import { faBroom } from "@fortawesome/free-solid-svg-icons";
+import { motion } from "motion/react";
+import type { RefObject } from "react";
+import { useRef } from "react";
+import { Link } from "react-router";
 
-import { type GuessStats, useUserGuessRecordContext } from "src/contexts/GuessRecordContext";
-import { Link } from "react-router-dom";
-import Button from "src/components/common/Button";
-import MainView from "src/components/layout/MainView";
 import ThinkingFace from "src/assets/images/mascot-thinking-bw.min.svg?url";
 import unknownFlag from "src/assets/images/unknown-flag.min.svg?url";
+import Button from "src/components/common/Button";
+import MainView from "src/components/layout/MainView";
+import { useGuessRecord } from "src/hooks/useGuessRecord";
+import type { GuessStats } from "src/store/UserGuessStats/types";
 
 type CountryProgressProps = {
   correct: number;
@@ -16,16 +17,10 @@ type CountryProgressProps = {
 };
 
 function CountryProgress({ correct, incorrect }: CountryProgressProps) {
-  const [adjustedCorrect, adjustedIncorrect, padEnd] = useMemo(() => {
-    const total = correct + incorrect;
-    if (total < 10) return [correct, incorrect, 10 - total];
-
-    const adjustedTotal = 10;
-    const adjustedCorrect = Math.round((correct / total) * adjustedTotal);
-    const adjustedIncorrect = adjustedTotal - adjustedCorrect;
-
-    return [adjustedCorrect, adjustedIncorrect, 0];
-  }, [correct, incorrect]);
+  const total = correct + incorrect;
+  const adjustedCorrect = total < 10 ? correct : Math.round((correct / total) * 10);
+  const adjustedIncorrect = total < 10 ? incorrect : 10 - adjustedCorrect;
+  const padEnd = total < 10 ? 10 - adjustedCorrect - adjustedIncorrect : 0;
 
   return (
     <div>
@@ -57,41 +52,17 @@ function CountryStatsCard({ countryStats }: CountryStatsProps) {
         height={38.4}
       />
       <div>
-        <div className="line-clamp-2 w-32 text-ellipsis text-sm">{countryStats.GEOUNIT}</div>
+        <div className="line-clamp-2 w-32 text-sm text-ellipsis">{countryStats.GEOUNIT}</div>
         <CountryProgress correct={countryStats.correctGuesses} incorrect={countryStats.incorrectGuesses} />
       </div>
     </div>
   );
 }
 
-function useAnimatedDialog(ref: React.RefObject<HTMLDialogElement>) {
-  const [dialogSprings, dialogSpringsApi] = useSpring(() => ({
-    from: { opacity: 0, transform: "translateY(-1rem)" },
-    to: { opacity: 1, transform: "translateY(0)" },
-  }));
-
-  const showDialog = () => {
-    ref.current?.showModal();
-    dialogSpringsApi.start({
-      from: { opacity: 0, transform: "translateY(-1rem)" },
-      to: { opacity: 1, transform: "translateY(0)" },
-    });
-  };
-
-  return {
-    dialogSprings,
-    showDialog,
-  };
-}
-
 function useDashboard() {
-  const { countryStats, clearProgress } = useUserGuessRecordContext();
+  const { countryStats, clearProgress } = useGuessRecord();
 
-  const countryStatsList: GuessStats[] | undefined = useMemo(() => {
-    const countryValues = Object.values(countryStats);
-
-    return countryValues.sort((a, b) => a.GEOUNIT.localeCompare(b.GEOUNIT));
-  }, [countryStats]);
+  const countryStatsList = Object.values(countryStats).sort((a, b) => a.GEOUNIT.localeCompare(b.GEOUNIT));
 
   return {
     countryStatsList,
@@ -99,42 +70,53 @@ function useDashboard() {
   };
 }
 
+function ClearProgressDialog({
+  onClick,
+  open,
+  ref,
+}: {
+  onClick: () => void;
+  open?: boolean;
+  ref: RefObject<HTMLDialogElement | null>;
+}) {
+  return (
+    <motion.dialog ref={ref} open={open} className="max-w-[50ch] rounded-md p-4 shadow-lg backdrop:bg-black/40">
+      <h2 className="pb-2 text-xl font-bold">All progress will be lost</h2>
+      <p className="text-sm">Your user guess history and country stats will be deleted.</p>
+      <form className="flex justify-end gap-2 pt-4" method="dialog">
+        <Button variant="danger" onClick={onClick}>
+          Clear progress
+        </Button>
+        <Button variant="secondary">Cancel</Button>
+      </form>
+    </motion.dialog>
+  );
+}
+
+function ClearProgressButton({ disabled, onClick }: { disabled: boolean; onClick: () => void }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-md bg-slate-800 p-2">
+      <h2 className="text-lg font-bold">Options</h2>
+      <Button className="w-max bg-transparent hover:bg-slate-400/40" disabled={disabled} onClick={onClick}>
+        <Button.Icon icon={faBroom} />
+        <span>Clear progress</span>
+      </Button>
+    </div>
+  );
+}
+
 export default function Dashboard() {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const { countryStatsList, clearProgress } = useDashboard();
-  const { dialogSprings, showDialog } = useAnimatedDialog(dialogRef);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
-    <MainView className="sm:flex-col">
-      <animated.dialog
-        className="max-w-[50ch] rounded-md p-4 shadow-lg backdrop:bg-black/40"
-        ref={dialogRef}
-        style={dialogSprings}
-      >
-        <h2 className="pb-2 text-xl font-bold">All progress will be lost</h2>
-        <p className="text-sm">Your user guess history and country stats will be deleted.</p>
-        <form className="flex justify-end gap-2 pt-4" method="dialog">
-          <Button styles="danger" onClick={clearProgress}>
-            Delete progress
-          </Button>
-          <Button styles="secondary">Cancel</Button>
-        </form>
-      </animated.dialog>
+    <MainView className="overflow-y-auto sm:flex-col">
+      <ClearProgressDialog ref={dialogRef} onClick={clearProgress} />
 
       <div className="flex w-full flex-1 gap-2 overflow-y-auto">
-        <div className="flex flex-col gap-2 rounded-md bg-slate-800 p-2">
-          <h2 className="text-lg font-bold">Options</h2>
-          <Button
-            className="w-max bg-transparent hover:bg-slate-400/40"
-            onClick={showDialog}
-            disabled={countryStatsList.length === 0}
-          >
-            <Button.Icon icon={faBroom} />
-            <span>Clear progress</span>
-          </Button>
-        </div>
+        <ClearProgressButton disabled={countryStatsList.length === 0} onClick={() => dialogRef.current?.showModal()} />
 
-        <div className="flex flex-1 flex-col overflow-y-auto">
+        <section className="flex flex-1 flex-col overflow-y-auto">
           <h1 className="p-2 pb-4 text-xl font-bold">Country Stats</h1>
           {countryStatsList.length === 0 ? (
             <div className="flex flex-[0.3_0.3_30%] items-center justify-center">
@@ -142,7 +124,7 @@ export default function Dashboard() {
                 <img src={ThinkingFace} className="mx-auto" width={96} height={96} alt="No records found" />
                 <h3 className="text-lg">No records found</h3>
                 <p>
-                  <Link to="/?activity=quiz" className="text-blue-500 hover:underline">
+                  <Link to="/" className="text-blue-500 hover:underline">
                     Play the map
                   </Link>
                   &nbsp;to start recording your progress.
@@ -156,7 +138,7 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </section>
       </div>
     </MainView>
   );

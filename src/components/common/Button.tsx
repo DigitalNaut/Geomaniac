@@ -10,16 +10,16 @@ const buttonStyles = {
 };
 
 type ButtonProps = PropsWithChildren<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> & {
-  styles?: keyof typeof buttonStyles;
+  variant?: keyof typeof buttonStyles;
 };
 
-function Button({ children, className, styles = "primary", ...props }: ButtonProps) {
+function Button({ children, className, variant = "primary", ...props }: ButtonProps) {
   return (
     <button
       role="button"
       className={twMerge(
-        "flex items-center justify-center gap-2 rounded-full px-4 py-1 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
-        buttonStyles[styles],
+        "flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-1 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+        buttonStyles[variant],
         className,
       )}
       {...props}

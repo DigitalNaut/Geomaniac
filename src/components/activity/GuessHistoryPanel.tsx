@@ -1,71 +1,59 @@
 import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useSpring, animated } from "@react-spring/web";
-import { twMerge } from "tailwind-merge";
+import { motion } from "motion/react";
+import { twJoin, twMerge } from "tailwind-merge";
 
-import type { CountryGuess } from "src/contexts/GuessRecordContext";
-import useScrollToTop from "src/hooks/useScrollToTop";
+import useScrollTo from "src/hooks/common/useScrollTo";
+import type { GuessHistory } from "src/store/UserGuessHistory/types";
 
-let itemStyle: string;
+export default function GuessHistoryPanel({ guessHistory }: { guessHistory: GuessHistory }) {
+  const { isScrolledToPosition, scrollToPosition, scrollRef } = useScrollTo("top");
 
-const props = {
-  from: { opacity: 0 },
-  to: { opacity: 1 },
-  config: { duration: 200 },
-};
-
-export default function GuessHistoryPanel({ guessHistory }: { guessHistory: CountryGuess[] }) {
-  const { isScrolledToBottom, handleScrollEvent, scrollToTop, scrollElementRef } = useScrollToTop();
-  const [rendered, setRendered] = useState(false);
-  const [springs, api] = useSpring(() => ({}));
-
-  useEffect(() => {
-    if (rendered) api.start(props);
-    else setRendered(true);
-  }, [api, guessHistory, rendered]);
+  const guessList = guessHistory.slice(0, -1);
+  const latestGuess = guessHistory.slice(-1).at(0);
 
   return (
     <div className="relative flex flex-col gap-2 overflow-y-auto">
-      <h3 className="text-center text-slate-300">Last {guessHistory.length} guesses</h3>
-      <div
-        className="flex flex-1 flex-col overflow-y-auto text-ellipsis px-2"
-        onScroll={handleScrollEvent}
-        ref={scrollElementRef}
-      >
+      <h3 className={twJoin("text-center text-slate-300", guessHistory.length > 0 ? "visible" : "invisible")}>
+        Last {guessHistory.length} guesses
+      </h3>
+      <div className="flex flex-1 flex-col overflow-y-auto px-2 text-ellipsis" ref={scrollRef}>
         <div className="flex flex-col-reverse pb-12">
-          {guessHistory.length ? (
-            guessHistory.map((guess, index) => {
-              const isLastItem = index === guessHistory.length - 1;
-
-              if (isLastItem) {
-                itemStyle = `py-2 text-white ${guess.isCorrect ? "bg-green-800" : "bg-yellow-800"}`;
-              } else {
-                itemStyle = guess.isCorrect ? " text-green-500 " : " text-slate-200 ";
-              }
-
-              return (
-                <animated.div
-                  className={twMerge("flex items-center gap-2 px-1", itemStyle)}
-                  style={isLastItem ? springs : {}}
-                  key={guess.timestamp}
-                  title={guess.text}
-                >
-                  <FontAwesomeIcon icon={guess.isCorrect ? faCheck : faTimes} />
-                  {guess.text}
-                </animated.div>
-              );
-            })
-          ) : (
-            <div className="pt-2 text-center text-sm italic">None yet, start guessing!</div>
+          {guessList?.map((guess) => (
+            <motion.div
+              className={twMerge("flex items-center gap-2 px-1", guess.isCorrect ? "text-green-500" : "text-slate-200")}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              key={guess.timestamp}
+              title={guess.text}
+            >
+              <FontAwesomeIcon icon={guess.isCorrect ? faCheck : faTimes} />
+              {guess.text}
+            </motion.div>
+          ))}
+          {latestGuess && (
+            <motion.div
+              className={twMerge(
+                "flex items-center gap-2 rounded-xs px-1 py-2 text-white",
+                latestGuess.isCorrect ? "bg-green-800" : "bg-yellow-800",
+              )}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              key={latestGuess.timestamp}
+              title={latestGuess.text}
+            >
+              <FontAwesomeIcon icon={latestGuess.isCorrect ? faCheck : faTimes} />
+              {latestGuess.text}
+            </motion.div>
           )}
+          {guessHistory.length === 0 && <div className="pt-2 text-center text-sm italic">No guesses yet!</div>}
         </div>
-        {!isScrolledToBottom && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-fit bg-gradient-to-t from-slate-900 px-6 pb-4 pt-12">
+        {!isScrolledToPosition && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-fit bg-linear-to-t from-slate-900 px-6 pt-12 pb-4">
             <button
               className="pointer-events-auto w-full rounded-md bg-white/80 text-center text-slate-900"
               role="button"
-              onClick={() => scrollToTop(scrollElementRef)}
+              onClick={scrollToPosition}
             >
               Scroll to top
             </button>

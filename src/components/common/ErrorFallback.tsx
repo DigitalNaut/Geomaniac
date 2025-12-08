@@ -20,6 +20,7 @@ export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallba
           </span>
           <code>{error.message}</code>
         </div>
+        <pre className="max-h-[75vh] max-w-full shrink overflow-auto text-clip">{error.stack}</pre>
         <button
           className="rounded-md bg-red-500 p-2 font-semibold hover:bg-red-400"
           role="button"

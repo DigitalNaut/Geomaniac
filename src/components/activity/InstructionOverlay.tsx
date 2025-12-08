@@ -1,23 +1,23 @@
+import type { Variants } from "motion/react";
+import { motion } from "motion/react";
 import type { PropsWithChildren } from "react";
-import { animated, useSpring } from "@react-spring/web";
-import { twMerge } from "tailwind-merge";
 
-export default function InstructionOverlay({ shouldShow, children }: PropsWithChildren<{ shouldShow: boolean }>) {
-  const springs = useSpring({
-    opacity: shouldShow ? 1 : 0,
-    transform: shouldShow ? "scale(1)" : "scale(1.5)",
-    config: { duration: 200 },
-  });
+const overlayVariants: Variants = {
+  hidden: { opacity: 0, transition: { duration: 0.2 } },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+};
 
+export default function InstructionOverlay({ children }: PropsWithChildren) {
   return (
-    <animated.div
-      className={twMerge(
-        "absolute inset-0 z-[1000] flex flex-col items-center justify-center rounded-lg bg-gray-900/10 text-xl italic",
-        shouldShow ? "pointer-events-auto" : "pointer-events-none",
-      )}
-      style={springs}
+    <motion.div
+      className="absolute inset-0 z-1000 flex flex-col items-center justify-center rounded-lg bg-gray-900/5"
+      key="instruction-overlay"
+      variants={overlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
     >
       {children}
-    </animated.div>
+    </motion.div>
   );
 }

@@ -8,7 +8,7 @@ type ErrorBannerProps = PropsWithChildren<{
 
 function ErrorBanner({ error, children }: ErrorBannerProps) {
   return (
-    <div className="flex w-full flex-[0] justify-center bg-red-800 p-2 text-white">
+    <div className="flex w-full flex-0 justify-center bg-red-800 p-2 text-white">
       <div className="flex gap-6">
         {error.message}
         {children}

@@ -1,28 +1,40 @@
-import { useCountryStore } from "src/hooks/useCountryStore";
-import { useUserGuessRecordContext } from "src/contexts/GuessRecordContext";
-import { useInputField } from "src/hooks/useInputField";
+import type { RefObject } from "react";
+
 import { useQuiz } from "src/controllers/useQuiz";
-import { useMemo } from "react";
+import { useInputField } from "src/hooks/common/useInputField";
+import { useGuessRecord } from "src/hooks/useGuessRecord";
+import { addVisitedCountry, clearQueue, getNextCountry, resetActivity } from "src/store/CountryStore/slice";
+import type { CountryData } from "src/store/CountryStore/types";
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
+import type { IActivity } from "./types";
 
-const styles = {
-  perfectStyle: "fill-green-600 stroke-green-400",
-  correctStyle: "fill-green-700 stroke-green-400",
-  incorrectStyle: "fill-green-800 stroke-green-400",
-};
+// TODO: Styling based on score needs to be reimplemented
+// const highlightStyle = "fill-yellow-400";
+const activityType = "quiz";
 
-const highlightStyle = "fill-yellow-400";
-
-export function useQuizInput() {
-  const { submitAnswer, resetTally, userGuessTally, pushVisitedCountry, visitedCountries } = useQuiz();
-  const { storedCountry: correctAnswer, setCountryDataRandom } = useCountryStore();
+export function useQuizInput(): IActivity & {
+  inputRef: RefObject<HTMLInputElement | null>;
+  visitedCountries: string[];
+  giveHint: () => void;
+  submitInput: () => CountryData | null;
+  userGuessTally: number;
+} {
+  const { submitAnswer, resetTally, userGuessTally } = useQuiz();
+  const { quiz: quizState } = useAppSelector((state) => state.countryStore);
   const { inputRef, setInputField: setAnswerInputField, focusInputField: focusAnswerInputField } = useInputField();
-  const { lastGuess } = useUserGuessRecordContext();
+  const { lastGuess } = useGuessRecord();
+  const dispatch = useAppDispatch();
+
+  const correctAnswer = quizState.currentCountry;
+  const correctAnswerCountry = correctAnswer ? correctAnswer : null;
 
   const giveHint = () => {
-    if (correctAnswer.data) {
+    if (!correctAnswer || !correctAnswerCountry) return;
+
+    if (correctAnswer) {
       // TODO: Add a better way to provide hints
       //const hint = countryCorrectAnswer.data.name.substring(0, userTries);
-      const hint = correctAnswer.data.GEOUNIT;
+      const hint = correctAnswerCountry.GEOUNIT;
       setAnswerInputField(hint);
     }
 
@@ -37,13 +49,11 @@ export function useQuizInput() {
 
   const showNextCountry = () => {
     focusAnswerInputField();
-
-    const nextCountry = setCountryDataRandom();
-    return nextCountry;
+    return dispatch(getNextCountry(activityType));
   };
 
   const submitInput = () => {
-    if (!correctAnswer.data) return null;
+    if (!correctAnswer) return null;
 
     const userGuess = inputRef.current?.value ?? "";
 
@@ -53,9 +63,10 @@ export function useQuizInput() {
 
     if (!isCorrect) return null;
 
-    const style =
-      styles[userGuessTally === 0 ? "perfectStyle" : userGuessTally <= 2 ? "correctStyle" : "incorrectStyle"];
-    pushVisitedCountry(correctAnswer.data.GU_A3, style);
+    // TODO: Styling based on score needs to be reimplemented
+    // const style = qualifyScore(userGuessTally);
+
+    dispatch(addVisitedCountry({ countryA3: correctAnswer.GU_A3, activityType }));
 
     resetInput();
     return showNextCountry();
@@ -67,10 +78,19 @@ export function useQuizInput() {
     return showNextCountry();
   };
 
-  const visitedCountriesHighlight = useMemo(() => {
-    if (!correctAnswer.data) return visitedCountries;
-    return [...visitedCountries, { a3: correctAnswer.data.GU_A3, style: highlightStyle, highlight: true }];
-  }, [correctAnswer.data, visitedCountries]);
+  const start = () => showNextCountry();
+
+  const finish = () => {
+    resetTally();
+    resetInput();
+    dispatch(clearQueue(activityType));
+  };
+
+  const reset = () => {
+    dispatch(resetActivity(activityType));
+  };
+
+  const resume = () => void 0;
 
   return {
     inputRef,
@@ -78,6 +98,10 @@ export function useQuizInput() {
     giveHint,
     nextCountry,
     userGuessTally,
-    visitedCountries: visitedCountriesHighlight,
+    visitedCountries: quizState.visitedCountries,
+    start,
+    finish,
+    reset,
+    resume,
   };
 }

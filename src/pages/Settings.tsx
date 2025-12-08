@@ -1,12 +1,10 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { useUserSettingsContext } from "src/contexts/UserSettingsContext";
-import { DriveAccessButton } from "src/components/drive/DriveAccess";
-import MainView from "src/components/layout/MainView";
-import Toggle from "src/components/common/Toggle";
 import Button from "src/components/common/Button";
-import DriveIcon from "src/components/drive/DriveIcon";
+import Toggle from "src/components/common/Toggle";
+import MainView from "src/components/layout/MainView";
+import { useSettings } from "src/hooks/useSettings";
 
 function SettingInfo({
   label,
@@ -15,15 +13,15 @@ function SettingInfo({
   small,
   children,
 }: PropsWithChildren<{
-  label: JSX.Element | string;
-  description?: JSX.Element | string;
-  info?: JSX.Element | string;
+  label: ReactNode;
+  description?: ReactNode;
+  info?: ReactNode;
   small?: true;
 }>) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <div className={twMerge(small ? "text-md" : "text-lg")}>{label}</div>
+        <div className={twMerge(small ? "text-base" : "text-lg")}>{label}</div>
         {children}
       </div>
       <div className="text-sm">{description}</div>
@@ -33,15 +31,11 @@ function SettingInfo({
 }
 
 function SettingsSection({ children }: PropsWithChildren) {
-  return <div className="flex flex-col gap-4 rounded-md bg-white/5 px-3 py-4">{children}</div>;
+  return <div className="flex flex-col gap-4 rounded-md bg-white/5 px-6 py-4">{children}</div>;
 }
 
 export default function Settings() {
-  const { userSettings, setUserSetting, resetUserSettings } = useUserSettingsContext();
-
-  const reset = () => {
-    resetUserSettings();
-  };
+  const { useReducedMotion, resetSettings, toggleUseReducedMotion } = useSettings();
 
   return (
     <MainView className="sm:flex-col">
@@ -53,51 +47,12 @@ export default function Settings() {
               label="Reduced motion"
               description="Use snappy transitions and animations to reduce motion sickness."
             >
-              <Toggle
-                value={userSettings.reducedMotion}
-                onChange={(value) => setUserSetting({ reducedMotion: value })}
-              />
-            </SettingInfo>
-          </SettingsSection>
-
-          <SettingsSection>
-            <SettingInfo
-              label={
-                <span className="flex items-center gap-1">
-                  <DriveIcon />
-                  Google Drive
-                </span>
-              }
-              description="Connect your Google Drive account to store your progress and settings."
-              info={
-                <>
-                  No personal data or identifying information is stored. You can manage the stored information on your
-                  Google Drive
-                  <a
-                    className="mx-[0.25em] text-blue-300 underline hover:text-blue-100"
-                    href="https://drive.google.com/drive/settings"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    account settings
-                  </a>
-                  under the &ldquo;Manage apps&rdquo; tab.
-                </>
-              }
-            >
-              <DriveAccessButton />
-            </SettingInfo>
-
-            <SettingInfo small label="Auto connect">
-              <Toggle
-                value={userSettings.autoConnectDrive}
-                onChange={(value) => setUserSetting({ autoConnectDrive: value })}
-              />
+              <Toggle value={useReducedMotion} onChange={toggleUseReducedMotion} />
             </SettingInfo>
           </SettingsSection>
 
           <div className="mt-4 flex w-full justify-end">
-            <Button onClick={reset} styles="secondary">
+            <Button onClick={resetSettings} variant="secondary">
               Restore defaults
             </Button>
           </div>

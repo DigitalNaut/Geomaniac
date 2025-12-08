@@ -1,42 +1,73 @@
-import type { LatLngExpression } from "leaflet";
+import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import { useEffect } from "react";
 
-import { mapDefaults } from "src/components/map/LeafletMap";
-import { useMapContext } from "src/contexts/MapContext";
-import { useUserSettingsContext } from "src/contexts/UserSettingsContext";
+import { useMapContext } from "src/context/Map/hook";
+import { useSettings } from "./useSettings";
 
-export function useMapViewport() {
+type Options = {
+  padding: number;
+};
+
+/**
+ * Manages the map viewport.
+ *
+ * Provides methods to move the map to a location using behavior from `Leaflet`.
+ *
+ * @param Object Same options as `useMapViewport`
+ * @param number The amount of padding to add to the adjusted bounds.
+ */
+export function useMapViewport({ options }: { options?: Options } = {}) {
+  const { useReducedMotion } = useSettings();
   const { map } = useMapContext();
-  const { userSettings } = useUserSettingsContext();
+  const padding = options?.padding ?? 250;
 
   useEffect(() => {
-    if (!map) return;
-    map.setMaxBounds(map.getBounds());
-  }, [map]);
+    if (!map || !padding) return;
 
-  async function flyTo(
+    const paddedBounds = map.getBounds().pad(padding);
+
+    map.setMaxBounds(paddedBounds);
+  }, [map, padding]);
+
+  const panTo = async function panTo(
     destination: LatLngExpression | null,
-    { zoom = 4, animate = true, duration = userSettings.reducedMotion ? 0.1 : 0.25 } = {},
-    delay = 0,
+    { animate = true, duration = useReducedMotion ? 0.05 : 0.25, delayMs = 0 } = {},
   ) {
-    if (!destination || !map) return;
+    if (!map || !destination) return;
 
-    if (delay > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
 
-    map.flyTo(destination, zoom, {
+    map.panInside(destination, {
       animate,
       duration,
+      padding: [padding, padding],
     });
+  };
 
-    map.flyToBounds;
-  }
-
-  function resetView() {
+  const fitTo = function fitTo(
+    bounds: LatLngBoundsExpression,
+    { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {},
+  ) {
     if (!map) return;
-    map.setView(mapDefaults.center, mapDefaults.zoom);
+
+    map.fitBounds(bounds, { animate, duration });
+  };
+
+  const panInside = function panInside(
+    bounds: LatLngBoundsExpression,
+    { animate = true, duration = useReducedMotion ? 0.05 : 0.25 } = {},
+  ) {
+    if (!map) return;
+
+    map.panInsideBounds(bounds, { animate, duration });
+  };
+
+  function resetViewport() {
+    if (!map) return;
+    map.fitWorld();
   }
 
-  return { flyTo, resetView };
+  return { panTo, panInside, fitTo, resetViewport };
 }

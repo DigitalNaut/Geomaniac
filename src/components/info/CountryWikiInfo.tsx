@@ -1,48 +1,54 @@
-import { useEffect, useMemo } from "react";
-import axios, { type AxiosRequestConfig } from "axios";
+import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useQuery } from "@tanstack/react-query";
-import { useCountryStore } from "src/hooks/useCountryStore";
-import { RenderDOM } from "src/components/common/RenderDOM";
+import axios, { type AxiosRequestConfig } from "axios";
+import { useEffect } from "react";
 
+import { RenderDOM } from "src/components/common/RenderDOM";
+import { selectCurrentCountryData } from "src/store/CountryStore/slice";
+import { useAppSelector } from "src/store/hooks";
 import { type WikidataSummaryResponse } from "src/types/wikipedia";
 
-const wikiLogoURL =
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/16px-Wikipedia-logo-v2.svg.png";
 const wikiApiURL = "https://en.wikipedia.org/w/api.php";
 
+/**
+ * Axios request config that includes the Wikipedia user agent in the headers
+ */
 const config: AxiosRequestConfig = {
   headers: {
     "Api-User-Agent": import.meta.env.VITE_WIKIPEDIA_API_USER_AGENT,
   },
 };
 
+const createWikipediaRequestParams = (titles = "") =>
+  new URLSearchParams({
+    format: "json",
+    action: "query",
+    prop: "info|pageimages|extracts",
+    exintro: "",
+    inprop: "url|thumbnail|original",
+    piprop: "thumbnail|original",
+    redirects: "1",
+    origin: "*",
+    titles,
+  });
+
+const queryWikipedia = (query: URLSearchParams) =>
+  axios.get<WikidataSummaryResponse>(`${wikiApiURL}?${query}`, config).then(({ data }) => data);
+
 export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }) {
-  const { storedCountry } = useCountryStore();
-  const query = useMemo(
-    () =>
-      new URLSearchParams({
-        format: "json",
-        action: "query",
-        prop: "info|pageimages|extracts",
-        exintro: "",
-        inprop: "url|thumbnail|original",
-        piprop: "thumbnail|original",
-        redirects: "1",
-        origin: "*",
-        titles: storedCountry.data?.GEOUNIT ?? "",
-      }),
-    [storedCountry.data?.GEOUNIT],
-  );
+  const currentCountry = useAppSelector(selectCurrentCountryData("review"));
+  const query = createWikipediaRequestParams(currentCountry?.GEOUNIT);
 
   const {
     isLoading: isSummaryLoading,
     error: summaryError,
     data: summaryData,
   } = useQuery({
-    queryKey: ["country-info", storedCountry.data, storedCountry.data?.WIKIDATAID, storedCountry.data?.GEOUNIT, query],
-    queryFn: () => axios.get<WikidataSummaryResponse>(`${wikiApiURL}?${query}`, config).then(({ data }) => data),
+    queryKey: ["country-info", currentCountry, currentCountry?.WIKIDATAID, currentCountry?.GEOUNIT, query],
+    queryFn: () => queryWikipedia(query),
     refetchOnWindowFocus: false,
-    enabled: !!storedCountry.data?.WIKIDATAID,
+    enabled: !!currentCountry?.WIKIDATAID,
   });
 
   useEffect(() => {
@@ -51,9 +57,9 @@ export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }
 
   if (summaryError)
     return (
-      <p className="pointer-events-auto max-h-[300px] max-w-xl overflow-y-auto break-all rounded-md bg-sky-900/60 p-3 scrollbar-thin scrollbar-track-sky-900 scrollbar-thumb-sky-700 hover:bg-sky-900">
+      <span className="pointer-events-auto scrollbar-thin max-h-[300px] max-w-xl overflow-y-auto rounded-md bg-sky-900/60 p-3 break-all scrollbar-thumb-sky-700 scrollbar-track-sky-900 hover:bg-sky-900">
         Data unavailable at the moment. An error has occurred.
-      </p>
+      </span>
     );
 
   if (isSummaryLoading) return <div className="rounded-md bg-sky-900/60 p-3">Loading wiki...</div>;
@@ -63,48 +69,51 @@ export function CountryWikiInfo({ onError }: { onError: (error: Error) => void }
   if (!page) return <p>Page not found</p>;
   if ("missing" in page)
     return (
-      <p className="m-2 rounded-sm border border-slate-400/40 px-4 py-2 italic">
-        Page unavailable for {JSON.stringify(storedCountry.data?.GEOUNIT, null, 2)}.
+      <p className="m-2 rounded-xs border border-slate-400/40 px-4 py-2 italic">
+        Page unavailable for {JSON.stringify(currentCountry?.GEOUNIT, null, 2)}.
       </p>
     );
 
   return (
-    <section className="flex max-h-[300px] max-w-xl flex-col p-3">
-      <div className="prose visible scroll-pb-3 overflow-y-auto indent-2 text-white scrollbar-thin scrollbar-track-sky-900 scrollbar-thumb-sky-700">
-        <div className="float-left mt-5">
-          {page.thumbnail && (
-            <img
-              className="peer m-2"
-              alt={storedCountry.data?.GEOUNIT}
-              src={page.thumbnail.source}
-              width={page.thumbnail.width}
-            />
-          )}
-
-          <span className="pointer-events-none absolute top-0 z-50 hidden -translate-y-1/3 rounded-sm bg-slate-200 p-2 shadow-lg peer-hover:block">
-            {page.original && (
+    <section className="flex max-h-[60vh] max-w-md flex-col">
+      <div className="visible relative scrollbar-thin scroll-p-8 overflow-y-auto px-4 pb-4 text-justify indent-4 wrap-break-word text-white scrollbar-thumb-sky-700 scrollbar-track-sky-900">
+        <h1 className="mt-4 mb-6 flex justify-between gap-2 text-left text-3xl font-bold text-white">
+          <span className="indent-0">{page.title}</span>
+          <div>
+            {page.thumbnail && (
               <img
-                className="shadow-md"
-                loading="lazy"
-                src={page.original.source}
-                width={page.original.width}
-                height={page.original.height}
+                className="peer m-2"
+                alt={currentCountry?.GEOUNIT}
+                src={page.thumbnail.source}
+                width={page.thumbnail.width}
               />
             )}
-          </span>
-        </div>
-        <RenderDOM input={page.extract} />
+
+            <span className="pointer-events-none absolute inset-x-0 top-0 z-50 hidden rounded-xs bg-slate-200 p-2 shadow-lg peer-hover:block">
+              {page.original && (
+                <img
+                  className="shadow-md"
+                  loading="lazy"
+                  src={page.original.source}
+                  width={page.original.width}
+                  height={page.original.height}
+                />
+              )}
+            </span>
+          </div>
+        </h1>
+
+        <RenderDOM className="prose" input={page.extract} />
       </div>
-      <span className="flex justify-end">
+      <span className="flex justify-end border-t-2 border-sky-800 pt-2 text-blue-300">
         <a
-          href={page.fullurl}
+          className="flex items-baseline justify-end gap-1 p-2 hover:underline"
+          href={`https://en.wikipedia.org/wiki/${currentCountry?.GEOUNIT}`}
           target="_blank"
           rel="noreferrer"
-          className="mr-2 flex items-center justify-end gap-1 text-blue-300 hover:underline"
         >
-          Read more on
-          <img src={wikiLogoURL} loading="lazy" width={16} />
-          Wikipedia &gt;
+          Read on Wikipedia&nbsp;
+          <FontAwesomeIcon icon={faExternalLink} />
         </a>
       </span>
     </section>

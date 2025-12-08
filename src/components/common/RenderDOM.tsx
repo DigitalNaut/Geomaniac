@@ -1,32 +1,48 @@
 import { createElement } from "react";
+import { twMerge } from "tailwind-merge";
 
 function filterText(text: string) {
-  return `<div>${text
+  const replacedText = text
     .replace(/<(link|meta).+?>/g, "")
     .replace(/\\n/g, "")
-    .replace(/\n/g, "")}</div>`;
+    .replace(/\n/g, "");
+  return `<div>${replacedText}</div>`;
 }
 
-export function RenderDOM({ input }: { input?: string }) {
-  if (!input) return "";
+const domParser = new DOMParser();
 
+function parseInput(input: string) {
   const filteredInput = filterText(input);
-  const root = new DOMParser();
-  const doc = root.parseFromString(filteredInput, "application/xhtml+xml");
+  const doc = domParser.parseFromString(filteredInput, "application/xhtml+xml");
 
-  const errorNode = doc.querySelector("parsererror");
-  if (errorNode) {
-    console.error(input);
-    return null;
+  const parserError = doc.querySelector("parsererror");
+  if (parserError) {
+    return { doc, error: new Error(parserError.textContent || undefined) };
   }
 
+  return { doc };
+}
+
+export function RenderDOM({ className, input }: { className?: string; input: string }) {
+  const { doc, error } = parseInput(input);
   const htmlSections = doc?.childNodes[0].childNodes;
+
+  if (error)
+    return (
+      <div className={twMerge("w-full flex-1 grow rounded-xs bg-red-400 p-2 text-white", className)}>
+        {error.message}
+      </div>
+    );
 
   if (!htmlSections) return null;
 
-  return Object.values(htmlSections).map((node, key) =>
-    node instanceof Element && node.tagName && node.textContent?.length
-      ? createElement(node.tagName, { key, ...node.attributes }, <RenderDOM input={node.innerHTML} />)
-      : node.textContent ?? "",
+  return (
+    <>
+      {Object.values(htmlSections).map((node, key) =>
+        node instanceof Element && node.tagName && node.textContent?.length
+          ? createElement(node.tagName, { key, ...node.attributes }, <RenderDOM input={node.innerHTML} />)
+          : (node.textContent ?? ""),
+      )}
+    </>
   );
 }

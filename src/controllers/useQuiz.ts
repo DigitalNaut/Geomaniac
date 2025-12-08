@@ -1,10 +1,11 @@
-import { useCountryStore } from "src/hooks/useCountryStore";
-import { useUserGuessRecordContext } from "src/contexts/GuessRecordContext";
-import { useTally } from "src/hooks/useTally";
+import { useTally } from "src/hooks/common/useTally";
+import { useGuessRecord } from "src/hooks/useGuessRecord";
+import { normalizeName } from "src/utils/features";
 
-import IncorrectSound from "src/assets/sounds/incorrect.mp3?url";
 import CorrectSound from "src/assets/sounds/correct.mp3?url";
-import { useVisitedCountries } from "src/hooks/useVisitedCountries";
+import IncorrectSound from "src/assets/sounds/incorrect.mp3?url";
+import { useAppSelector } from "src/store/hooks";
+import { selectCurrentCountryData } from "src/store/CountryStore/slice";
 
 const incorrectAnswerAudioSrc = new URL(IncorrectSound, import.meta.url);
 const correctAnswerAudioSrc = new URL(CorrectSound, import.meta.url);
@@ -17,27 +18,34 @@ function playAudio(audio: HTMLAudioElement) {
 }
 
 export function useQuiz() {
-  const { visitedCountries, pushVisitedCountry } = useVisitedCountries();
+  const answerCountry = useAppSelector(selectCurrentCountryData("quiz"));
 
-  const { storedCountry: correctAnswer, compareStoredCountry: checkAnswer } = useCountryStore();
-
-  const { createRecord } = useUserGuessRecordContext();
+  const { createRecord } = useGuessRecord();
   const { tally, upTally, resetTally } = useTally();
 
+  const checkAnswer = (guess: string) => {
+    if (!answerCountry) return false;
+
+    const answer = answerCountry.GEOUNIT;
+    const inputMatchesAnswer = normalizeName(guess) === normalizeName(answer);
+
+    return inputMatchesAnswer;
+  };
+
   const submitAnswer = (userGuess: string) => {
-    if (!userGuess || userGuess.length === 0 || !correctAnswer.data) return false;
+    if (!userGuess || userGuess.length === 0 || !answerCountry) return false;
 
     const isCorrect = checkAnswer(userGuess);
 
     if (isCorrect) {
       resetTally();
-      playAudio(correctAnswerTrack);
     } else {
       upTally();
-      playAudio(incorrectAnswerTrack);
     }
 
-    const { ISO_A2_EH, GU_A3, GEOUNIT } = correctAnswer.data;
+    playAudio(isCorrect ? correctAnswerTrack : incorrectAnswerTrack);
+
+    const { ISO_A2_EH, GU_A3, GEOUNIT } = answerCountry;
 
     createRecord({
       text: userGuess,
@@ -50,11 +58,5 @@ export function useQuiz() {
     return isCorrect;
   };
 
-  return {
-    submitAnswer,
-    userGuessTally: tally,
-    resetTally,
-    visitedCountries,
-    pushVisitedCountry,
-  };
+  return { submitAnswer, userGuessTally: tally, resetTally };
 }

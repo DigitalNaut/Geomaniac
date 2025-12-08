@@ -6,7 +6,5 @@ type MainViewProps = PropsWithChildren<{
 }>;
 
 export default function MainView({ children, className }: MainViewProps) {
-  return (
-    <main className={twMerge("flex flex-1 flex-col overflow-y-auto px-2 pt-2 sm:flex-row", className)}>{children}</main>
-  );
+  return <main className={twMerge("flex flex-1 flex-col sm:flex-row", className)}>{children}</main>;
 }

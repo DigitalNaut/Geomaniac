@@ -2,17 +2,30 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch localhost:5173",
-      "type": "firefox",
+      "name": "netlify dev",
+      "type": "node",
       "request": "launch",
-      "reAttach": true,
-      "url": "http://localhost:5173",
-      "pathMappings": [
-        {
-          "url": "http://localhost:5173",
-          "path": "${workspaceFolder}"
-        }
-      ]
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/.netlify/functions-serve/**/*.js"],
+      "program": "${workspaceFolder}/node_modules/.bin/netlify",
+      "args": ["dev"],
+      "console": "integratedTerminal",
+      "env": { "BROWSER": "none" },
+      "serverReadyAction": {
+        "pattern": "Server now ready on (https?://[\\w:.-]+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    },
+    {
+      "name": "netlify functions:serve",
+      "type": "node",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/.netlify/functions-serve/**/*.js"],
+      "program": "${workspaceFolder}/node_modules/.bin/netlify",
+      "args": ["functions:serve"],
+      "console": "integratedTerminal"
     }
   ]
 }
