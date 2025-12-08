@@ -47,7 +47,6 @@
         "npm:eslint-plugin-import@^2.32.0",
         "npm:eslint-plugin-jsx-a11y@^6.10.2",
         "npm:eslint-plugin-no-relative-import-paths@^1.6.1",
-        "npm:eslint-plugin-prettier@^5.5.4",
         "npm:eslint-plugin-react-hooks@^7.0.1",
         "npm:eslint-plugin-react-refresh@~0.4.24",
         "npm:eslint-plugin-react@^7.37.5",
