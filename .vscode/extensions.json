@@ -21,6 +21,7 @@
     "pkief.material-icon-theme",
     "wayou.vscode-todo-highlight",
     "grapecity.gc-excelviewer",
-    "reflow.reflow"
+    "reflow.reflow",
+    "tamasfe.even-better-toml"
   ]
 }
