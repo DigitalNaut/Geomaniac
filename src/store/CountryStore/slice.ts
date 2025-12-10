@@ -112,7 +112,7 @@ const countryStoreSlice = createSlice({
       activity.queue = newQueue;
     },
 
-    nextCountryInQueue(state, { payload: activityType }: PayloadAction<ActivityType>) {
+    getNextCountryInQueue(state, { payload: activityType }: PayloadAction<ActivityType>) {
       const activity = state[activityType];
 
       if (!activity.currentContinent) return;
@@ -241,7 +241,7 @@ const countryStoreSlice = createSlice({
 export const { clearQueue, addVisitedCountry } = countryStoreSlice.actions;
 export default countryStoreSlice.reducer;
 
-export function createNewQueue(
+export function createQueue(
   params: Parameters<typeof countryStoreSlice.actions.newQueue>[0],
 ): AppThunk<CountryData | null> {
   return function (dispatch, getState) {
@@ -252,7 +252,7 @@ export function createNewQueue(
 
 export function getNextCountry(activityType: keyof CountryStoreState): AppThunk<CountryData | null> {
   return function (dispatch, getState) {
-    dispatch(countryStoreSlice.actions.nextCountryInQueue(activityType));
+    dispatch(countryStoreSlice.actions.getNextCountryInQueue(activityType));
     return getState().countryStore[activityType].currentCountry;
   };
 }
@@ -294,13 +294,23 @@ export function selectCurrentCountryA3(activity?: ActivityType | null) {
   );
 }
 
-export function selectPreviousCountryA3(activityType?: ActivityType | null) {
+export function selectNextCountry(activityType?: ActivityType | null) {
+  return createSelector(
+    (state: RootState) => {
+      if (!activityType) return null;
+      return state.countryStore[activityType].queue[0];
+    },
+    (country) => (country ? countryCatalog[country] : null),
+  );
+}
+
+export function selectPreviousCountry(activityType?: ActivityType | null) {
   return createSelector(
     (state: RootState) => {
       if (!activityType) return null;
       return state.countryStore[activityType].previousCountry;
     },
-    (country) => country?.GU_A3 || null,
+    (country) => country || null,
   );
 }
 

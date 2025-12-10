@@ -10,7 +10,7 @@ import {
   continentBoundsCatalog,
   countriesByContinent,
   countryCatalog,
-  createNewQueue,
+  createQueue,
   selectCurrentContinent,
   selectCurrentCountryData,
 } from "src/store/CountryStore/slice";
@@ -121,7 +121,7 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     if (!activity) return;
 
     const country = dispatch(
-      createNewQueue({
+      createQueue({
         activityType: activity.activity,
         continent,
         shuffle: false,
