@@ -1,7 +1,6 @@
 import type { RefObject } from "react";
 import { createContext, useContext } from "react";
 
-import type { ActivityState } from "src/store/CountryStore/slice";
 import type { CountryData } from "src/store/CountryStore/types";
 
 type ActivityCoordinatorContextType = {
@@ -11,12 +10,12 @@ type ActivityCoordinatorContextType = {
   setContinent: (continent: string) => void;
   visitedCountries: string[];
   unvisitedCountries: string[];
-  currentActivityState: ActivityState | null;
   setCurrentCountry: (a3: string) => void;
   guessTally: number;
-  nextCountry: () => CountryData | null;
+  nextCountry: () => void;
   submitAnswer: () => CountryData | null;
   reset: () => void;
+  restart: () => void;
 };
 
 export const ActivityCoordinatorContext = createContext<ActivityCoordinatorContextType | null>(null);

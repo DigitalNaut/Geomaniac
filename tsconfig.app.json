@@ -20,6 +20,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "noUncheckedIndexedAccess": true,
     /* Personal choices */
     "allowJs": false, // No js is best js
     "allowSyntheticDefaultImports": true,

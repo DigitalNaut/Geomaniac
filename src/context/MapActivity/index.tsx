@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
-import type { ActivityType } from "src/types/map-activity";
 import { isValidActivity } from "src/types/map-activity";
+import type { MapActivityContextType } from "./hook";
 import { MapActivityContext } from "./hook";
 
 /**

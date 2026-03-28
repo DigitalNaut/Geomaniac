@@ -7,7 +7,14 @@ export function InlineButton({
   className,
   small,
   title,
-}: PropsWithChildren<{ onClick: () => void; className?: string; small?: true; title: string }>) {
+  disabled,
+}: PropsWithChildren<{
+  onClick: () => void;
+  className?: string;
+  small?: true;
+  title: string;
+  disabled?: boolean;
+}>) {
   return (
     <button
       className={twMerge(
@@ -18,6 +25,7 @@ export function InlineButton({
       role="button"
       title={title}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>

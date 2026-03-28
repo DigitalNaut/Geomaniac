@@ -32,13 +32,19 @@ import { useHeaderController } from "src/context/useHeaderController";
 import { useError } from "src/hooks/common/useError";
 import { useGuessRecord } from "src/hooks/useGuessRecord";
 import { useMapViewport } from "src/hooks/useMapViewport";
-import { countriesByContinent, countryCatalog } from "src/store/CountryStore/slice";
+import {
+  countriesByContinent,
+  countryCatalog,
+  selectCurrentContinent,
+  selectCurrentCountryData,
+} from "src/store/CountryStore/slice";
 import type { CountryData } from "src/store/CountryStore/types";
 import type { ActivityMode, ActivityType } from "src/types/map-activity";
 import { getLabelCoordinates } from "src/utils/features";
 import { cn } from "src/utils/styles";
 
 import NerdMascot from "src/assets/images/mascot-nerd.min.svg";
+import { useAppSelector } from "src/store/hooks";
 
 const mapGradientTheme = {
   noActivity: "from-sky-700 to-sky-800 blur-xs",
@@ -112,6 +118,9 @@ function CountryLabel({
   };
 }) {
   const countryData = countryCatalog[countryCode];
+
+  if (!countryData) return null;
+
   const position = projectFn(getLabelCoordinates(countryData));
   const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
   const admin =
@@ -247,7 +256,6 @@ function ActivityMap({
   const { map } = useMapContext();
   const { resetViewport } = useMapViewport();
   const {
-    currentActivityState,
     handleMapClick,
     visitedCountries,
     guessTally,
@@ -257,9 +265,16 @@ function ActivityMap({
     submitAnswer,
     setContinent,
     reset,
+    restart,
   } = useActivityCoordinatorContext();
 
-  const { currentContinent, currentCountry } = currentActivityState ?? {};
+  const { activity } = useMapActivityContext();
+
+  const currentContinentSelector = selectCurrentContinent(activity?.activity);
+  const currentContinent = useAppSelector(currentContinentSelector);
+
+  const currentCountrySelector = selectCurrentCountryData(activity?.activity);
+  const currentCountry = useAppSelector(currentCountrySelector);
 
   const storedCountryCoordinates = currentCountry ? getLabelCoordinates(currentCountry) : null;
 
@@ -275,13 +290,11 @@ function ActivityMap({
 
   useHeaderController(finishActivity);
 
-  const { activity } = useMapActivityContext();
-
   const colorTheme = mapActivityTheme[activity?.activity || "default"];
 
   const mapLists: ActiveSvgMapLists = {
     // Active list is all countries in the current continent
-    activeList: !currentContinent ? [] : countriesByContinent[currentContinent].slice(),
+    activeList: !currentContinent ? [] : (countriesByContinent[currentContinent]?.slice() ?? []),
     // Highlight list is the current country unless Pointing
     highlightList: activity?.kind === "pointing" ? [] : !currentCountry ? [] : [currentCountry.GU_A3],
     visitedList: visitedCountries,
@@ -372,6 +385,7 @@ function ActivityMap({
               <ReviewFloatingPanel
                 key="review-floating-panel"
                 showNextCountry={nextCountry}
+                restart={restart}
                 disabled={!currentCountry}
               />
               <WikipediaFloatingPanel key="wikipedia-floating-panel" onError={setError} />

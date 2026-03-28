@@ -91,6 +91,8 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
 
     const continentBounds = continentBoundsCatalog[continent];
 
+    if (!continentBounds) throw new Error(`Unknown continent: ${continent}`);
+
     if (fitToView) {
       fitTo(continentBounds);
     } else {
@@ -118,32 +120,29 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   const setContinent = (continent: string) => {
     if (!activity) return;
 
-    const country = dispatch(
-      createQueue({
-        activityType: activity.activity,
-        continent,
-        shuffle: false,
-        blacklistedCountries: [],
-      }),
-    );
+    let countryData: CountryData | null = null;
+    const activityType = activity.activity;
 
     switch (activity.kind) {
       case "countries": {
+        countryData = dispatch(createQueue({ activityType, continent, shuffle: false }));
         review.start();
         break;
       }
       case "typing": {
+        countryData = dispatch(createQueue({ activityType, continent, shuffle: true }));
         inputQuiz.start();
         break;
       }
       case "pointing": {
+        countryData = dispatch(createQueue({ activityType, continent, shuffle: true }));
         clickQuiz.start();
         break;
       }
     }
 
-    if (country) {
-      focusViewportContinent(country?.CONTINENT, true);
+    if (countryData) {
+      focusViewportContinent(countryData?.CONTINENT, true);
     }
   };
 
@@ -162,26 +161,23 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
   };
 
   const nextCountry = () => {
-    if (!activity) return null;
+    if (!activity) return;
 
     switch (activity.kind) {
       case "countries": {
         const country = review.nextCountry();
         focusViewportCountry(country);
-        return country;
+        break;
       }
       case "typing": {
         const country = inputQuiz.nextCountry();
         focusViewportContinent(country?.CONTINENT);
-        return country;
+        break;
       }
       case "pointing": {
         const country = clickQuiz.nextCountry();
         focusViewportContinent(country?.CONTINENT);
-        return country;
       }
-      default:
-        return null;
     }
   };
 
@@ -229,8 +225,30 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
     }
   };
 
+  const restart = () => {
+    if (!activity) return;
+
+    switch (activity.kind) {
+      case "countries": {
+        const country = review.restart();
+        focusViewportCountry(country);
+        break;
+      }
+      case "typing": {
+        const country = inputQuiz.restart();
+        focusViewportContinent(country?.CONTINENT);
+        break;
+      }
+      case "pointing": {
+        const country = clickQuiz.restart();
+        focusViewportContinent(country?.CONTINENT);
+      }
+    }
+  };
+
   useActivityTracker((prevActivity, currentActivity) => {
-    const isNewActivity = prevActivity === null && currentActivity !== null;
+    const isNewActivity = !!prevActivity && !!currentActivity;
+
     if (isNewActivity) {
       switch (currentActivity.kind) {
         case "countries":
@@ -266,7 +284,7 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
         visitedCountries,
         unvisitedCountries,
         reset,
-        currentActivityState,
+        restart,
         guessTally,
         nextCountry,
         setCurrentCountry,

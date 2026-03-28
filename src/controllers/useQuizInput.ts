@@ -3,7 +3,12 @@ import type { RefObject } from "react";
 import { useQuiz } from "src/controllers/useQuiz";
 import { useInputField } from "src/hooks/common/useInputField";
 import { useGuessRecord } from "src/hooks/useGuessRecord";
-import { addVisitedCountry, clearQueue, getNextCountry, resetActivity } from "src/store/CountryStore/slice";
+import {
+  addVisitedCountry,
+  popNextCountry,
+  resetActivity,
+  selectCurrentCountryCode,
+} from "src/store/CountryStore/slice";
 import type { CountryData } from "src/store/CountryStore/types";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import type { IActivity } from "./types";
@@ -25,16 +30,16 @@ export function useQuizInput(): IActivity & {
   const { lastGuess } = useGuessRecord();
   const dispatch = useAppDispatch();
 
-  const correctAnswer = quizState.currentCountry;
-  const correctAnswerCountry = correctAnswer ? correctAnswer : null;
+  const selectCurrentCountry = selectCurrentCountryCode(activityType);
+  const correctAnswer = useAppSelector(selectCurrentCountry);
 
   const giveHint = () => {
-    if (!correctAnswer || !correctAnswerCountry) return;
+    if (!correctAnswer) return;
 
     if (correctAnswer) {
       // TODO: Add a better way to provide hints
       //const hint = countryCorrectAnswer.data.name.substring(0, userTries);
-      const hint = correctAnswerCountry.GEOUNIT;
+      const hint = correctAnswer;
       setAnswerInputField(hint);
     }
 
@@ -49,7 +54,7 @@ export function useQuizInput(): IActivity & {
 
   const showNextCountry = () => {
     focusAnswerInputField();
-    return dispatch(getNextCountry(activityType));
+    return dispatch(popNextCountry(activityType));
   };
 
   const submitInput = () => {
@@ -66,7 +71,7 @@ export function useQuizInput(): IActivity & {
     // TODO: Styling based on score needs to be reimplemented
     // const style = qualifyScore(userGuessTally);
 
-    dispatch(addVisitedCountry({ countryA3: correctAnswer.GU_A3, activityType }));
+    dispatch(addVisitedCountry({ countryCode: correctAnswer, activityType }));
 
     resetInput();
     return showNextCountry();
@@ -80,17 +85,19 @@ export function useQuizInput(): IActivity & {
 
   const start = () => showNextCountry();
 
-  const finish = () => {
+  const reset = () => {
     resetTally();
     resetInput();
-    dispatch(clearQueue(activityType));
-  };
-
-  const reset = () => {
     dispatch(resetActivity(activityType));
   };
 
   const resume = () => void 0;
+
+  const restart = () => {
+    resetTally();
+    resetInput();
+    return dispatch(popNextCountry(activityType));
+  };
 
   return {
     inputRef,
@@ -100,8 +107,8 @@ export function useQuizInput(): IActivity & {
     userGuessTally,
     visitedCountries: quizState.visitedCountries,
     start,
-    finish,
     reset,
     resume,
+    restart,
   };
 }

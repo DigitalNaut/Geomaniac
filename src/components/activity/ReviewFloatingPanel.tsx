@@ -82,9 +82,11 @@ export function UnsplashImagesFloatingPanel() {
 
 export default function ReviewFloatingPanel({
   showNextCountry,
+  restart,
   disabled,
 }: {
   showNextCountry: () => void;
+  restart: () => void;
   disabled: boolean;
 }) {
   const { isRandomReviewMode, setRandomReviewMode } = useMapActivityContext();
