@@ -38,6 +38,7 @@ export default defineConfig(
       "@typescript-eslint/consistent-type-imports": "error",
       "no-relative-import-paths/no-relative-import-paths": ["warn", { allowSameFolder: true }],
       "object-shorthand": ["warn", "always"],
+      "no-useless-rename": "warn",
       "consistent-return": ["warn"],
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/exhaustive-deps": "warn",
