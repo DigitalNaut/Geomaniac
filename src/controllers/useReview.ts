@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useSearchParams } from "react-router";
 
 import {
@@ -77,7 +77,7 @@ export function useReview(): IActivity & {
     dispatch(resetActivity(activityType));
   };
 
-  const start = () => {
+  const start = useEffectEvent(() => {
     const countryInUrl = searchParams.get("country");
 
     if (currentCountry) {
@@ -100,7 +100,7 @@ export function useReview(): IActivity & {
     }
 
     return setCurrentCountry(countryInUrl);
-  };
+  });
 
   const resume = () => {
     if (currentCountry) {
