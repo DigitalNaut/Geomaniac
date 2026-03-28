@@ -409,9 +409,9 @@ export default function ActivityMapLayout() {
         <AnimatePresence>
           {!isActivitySelected && (
             <InstructionOverlay key="instruction-overlay">
-              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center gap-8 p-6">
-                <h1 className="text-2xl">Learn Geography</h1>
-                <div className="flex flex-col shadow-lg">
+              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center p-6 first:rounded-t-2xl last:rounded-b-2xl">
+                <h1 className="w-full bg-slate-800 p-4 text-center text-4xl uppercase">Learn Geography</h1>
+                <div className="flex w-full flex-col shadow-lg">
                   <ActivityButton
                     type="review"
                     icon={<FontAwesomeIcon icon={faBookAtlas} />}
@@ -423,8 +423,8 @@ export default function ActivityMapLayout() {
                   />
                 </div>
 
-                <h2 className="text-xl">And test your knowledge</h2>
-                <div className="flex flex-col shadow-lg">
+                <h2 className="w-full bg-slate-800 p-4 text-center text-xl uppercase">And test yourself</h2>
+                <div className="flex w-full flex-col shadow-lg">
                   <ActivityButton
                     type="quiz"
                     icon={<FontAwesomeIcon icon={faMousePointer} />}
@@ -436,6 +436,7 @@ export default function ActivityMapLayout() {
                   />
                   <ActivityButton
                     type="quiz"
+                    className="w-full"
                     icon={<FontAwesomeIcon icon={faKeyboard} />}
                     label="Typing quiz"
                     summary="Type in the name of the country"
