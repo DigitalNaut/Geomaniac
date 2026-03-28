@@ -85,8 +85,6 @@ export function ActivityCoordinatorProvider({ children }: PropsWithChildren) {
 
   /**
    * Focuses the Leaflet map viewport on the given continent.
-   * @param a3
-   * @returns
    */
   const focusViewportContinent = (continent?: string | null, fitToView = true) => {
     if (!continent || continent.length === 0) return;

@@ -3,9 +3,9 @@ import { useParams } from "react-router";
 
 import { isValidActivity, type ActivityType } from "src/types/map-activity";
 
-type MapActivityContextType = {
+export type MapActivityContextType = {
   activity: ActivityType | null;
-  navigateToActivity: (activity: ActivityType | null) => void;
+  navigateToActivity: (activity: ActivityType | null | undefined) => void;
   isRandomReviewMode: boolean;
   setRandomReviewMode: (isRandomReviewMode: boolean) => void;
 };

@@ -41,7 +41,7 @@ export function MapActivityProvider({ children }: PropsWithChildren) {
   const isRandomReviewMode = searchParams.get("random") === "true";
   const activity = isValidActivity(params) ? params : null;
 
-  const navigateToActivity = (newActivity: ActivityType | null) => {
+  const navigateToActivity: MapActivityContextType["navigateToActivity"] = (newActivity) => {
     navigate(newActivity ? `/${newActivity.activity}/${newActivity.kind}` : "/");
   };
 

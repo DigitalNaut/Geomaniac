@@ -107,7 +107,7 @@ export default function ReviewFloatingPanel({
           <ActionButton
             className="flex w-full flex-col"
             disabled={disabled}
-            onClick={showNextCountry}
+            onClick={nextCountry ? showNextCountry : restart}
             title="Next country"
           >
             {nextCountry ? (

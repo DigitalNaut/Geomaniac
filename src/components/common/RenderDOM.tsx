@@ -25,7 +25,7 @@ function parseInput(input: string) {
 
 export function RenderDOM({ className, input }: { className?: string; input: string }) {
   const { doc, error } = parseInput(input);
-  const htmlSections = doc?.childNodes[0].childNodes;
+  const htmlSections = doc?.childNodes[0]?.childNodes;
 
   if (error)
     return (
