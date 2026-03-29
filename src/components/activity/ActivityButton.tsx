@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import { cn } from "src/utils/styles";
 
 const activityButtonStyles = {
-  review: "hover:bg-linear-to-br hover:text-lime-700 hover:text-shadow-lime-400/15",
-  quiz: "hover:bg-linear-to-br hover:text-yellow-700 hover:text-shadow-yellow-400/15",
+  review: "hover:bg-linear-to-br hover:text-lime-800 hover:text-shadow-lime-400/15",
+  quiz: "hover:bg-linear-to-br hover:text-yellow-800 hover:text-shadow-yellow-400/15",
   base: "bg-white/85 hover:bg-white text-slate-800 outline outline-slate-200/0 hover:outline-slate-200/15 backdrop-blur-md hover:text-shadow-lg",
 };
 
@@ -28,7 +28,7 @@ export function ActivityButton({
     <button
       role="button"
       className={cn(
-        "group flex w-full cursor-pointer items-center justify-center gap-6 py-10 pl-10 transition-colors duration-100",
+        "group flex w-full cursor-pointer items-center justify-center gap-6 rounded-sm py-10 pl-10 transition-colors duration-150 ease-in-out hover:scale-101 active:scale-99",
         activityButtonStyles.base,
         activityButtonStyles[type],
       )}

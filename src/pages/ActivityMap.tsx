@@ -1,4 +1,4 @@
-import { faAngleLeft, faBookAtlas, faGlobe, faKeyboard, faMousePointer } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faBookAtlas, faKeyboard, faMousePointer } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Map } from "leaflet";
 import type { Variants } from "motion/react";
@@ -314,14 +314,14 @@ function ActivityMap({
         {activity && (
           <>
             <ZoomControl position="topright" />
-            <MapControl className="flex gap-2 text-base" position="topleft">
-              <Button onClick={finishActivity} title="Finish activity">
+            <MapControl className="flex flex-col gap-2 text-base" position="topleft">
+              <Button onClick={finishActivity} title="Finish activity" className="rounded-none">
                 <Button.Icon icon={faAngleLeft} />
-                Menu
+                <span className="w-full justify-start text-left">Menu</span>
               </Button>
-              <Button title="Reset activity" onClick={resetActivity}>
-                <Button.Icon icon={faGlobe} />
-                Change continent
+              <Button title="Reset activity" onClick={resetActivity} className="rounded-none">
+                <Button.Icon icon={faAngleLeft} />
+                <span className="w-full justify-start text-left">Change continent</span>
               </Button>
             </MapControl>
 
@@ -423,30 +423,26 @@ export default function ActivityMapLayout() {
         <AnimatePresence>
           {!isActivitySelected && (
             <InstructionOverlay key="instruction-overlay">
-              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center p-6 first:rounded-t-2xl last:rounded-b-2xl">
-                <h1 className="w-full bg-slate-800 p-4 text-center text-4xl uppercase">Learn Geography</h1>
+              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center overflow-hidden rounded-lg p-6 first:rounded-t-2xl last:rounded-b-2xl">
+                <h1 className="w-full p-4 text-center text-4xl uppercase">Learn Geography</h1>
                 <div className="flex w-full flex-col shadow-lg">
                   <ActivityButton
                     type="review"
                     icon={<FontAwesomeIcon icon={faBookAtlas} />}
                     label="Review the map"
                     summary="Learn country names by region"
-                    onClick={() => {
-                      navigateToActivity(activities["review-countries"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["review-countries"])}
                   />
                 </div>
 
-                <h2 className="w-full bg-slate-800 p-4 text-center text-xl uppercase">And test yourself</h2>
-                <div className="flex w-full flex-col shadow-lg">
+                <h2 className="w-full p-4 text-center text-xl uppercase">And test yourself</h2>
+                <div className="flex w-full flex-col gap-2 shadow-lg">
                   <ActivityButton
                     type="quiz"
                     icon={<FontAwesomeIcon icon={faMousePointer} />}
                     label="Point & click"
                     summary="Point out the country on the map"
-                    onClick={() => {
-                      navigateToActivity(activities["quiz-pointing"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["quiz-pointing"])}
                   />
                   <ActivityButton
                     type="quiz"
@@ -454,9 +450,7 @@ export default function ActivityMapLayout() {
                     icon={<FontAwesomeIcon icon={faKeyboard} />}
                     label="Typing quiz"
                     summary="Type in the name of the country"
-                    onClick={() => {
-                      navigateToActivity(activities["quiz-typing"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["quiz-typing"])}
                   />
                 </div>
               </section>

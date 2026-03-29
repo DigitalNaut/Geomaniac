@@ -53,7 +53,7 @@ export default function CountriesListPanel({ isAbridged = false }: { isAbridged?
 
       <div className="flex h-max flex-col gap-2 overflow-y-auto pl-2">
         <div
-          className="flex flex-col flex-wrap gap-2 px-2 pb-[40vh] text-xs sm:text-sm md:flex-row md:text-base"
+          className="flex flex-col flex-wrap gap-2 p-2 text-xs sm:text-sm md:flex-row md:text-base"
           ref={listRef}
         >
           {visited.map(({ GEOUNIT, GU_A3 }) => (

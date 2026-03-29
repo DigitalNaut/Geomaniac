@@ -104,13 +104,13 @@ export default function ReviewFloatingPanel({
       animate="visible"
       exit="hidden"
     >
-      <div className="pointer-events-auto flex w-fit flex-col items-center overflow-hidden rounded-md bg-slate-900 drop-shadow-lg">
-        <motion.div className="flex w-full flex-col items-center overflow-hidden rounded-md">
+      <div className="pointer-events-auto flex w-fit flex-col items-center bg-slate-900 drop-shadow-lg">
+        <motion.div className="flex w-full flex-col items-center rounded-sm">
           <ActionButton
             className="flex w-full flex-col"
             disabled={disabled}
             onClick={nextCountry ? showNextCountry : restart}
-            title="Next country"
+            title={nextCountry ? "Next country" : "Restart"}
           >
             {nextCountry ? (
               <>
@@ -124,7 +124,7 @@ export default function ReviewFloatingPanel({
           <div className="flex justify-between gap-2 p-1">
             <label className="flex items-center gap-2 p-1" htmlFor="randomMode">
               <input id="randomMode" type="checkbox" checked={isRandomReviewMode} onChange={onChange} />
-              Random mode
+              Randomize
             </label>
           </div>
         </motion.div>

@@ -21,7 +21,7 @@ export default function ContinentSelectionOverlay({ onClick }: { onClick: (id: s
       animate="shown"
       exit="hidden"
     >
-      <section className="flex size-fit max-w-(--breakpoint-sm) flex-col items-center gap-2 rounded-2xl bg-sky-800/25 p-3 shadow-md backdrop-blur-md">
+      <section className="flex size-fit max-w-(--breakpoint-sm) flex-col items-center gap-2 rounded-sm bg-sky-800/25 p-3 shadow-md backdrop-blur-md">
         <h2 className="text-center text-2xl font-bold">Choose a region</h2>
         <span>Select a continent to review:</span>
         <div className="flex flex-col items-center justify-center gap-4 text-center">
