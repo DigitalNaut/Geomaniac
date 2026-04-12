@@ -1,12 +1,11 @@
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getErrorMessage } from "react-error-boundary";
+import type { FallbackProps } from "react-error-boundary";
 
-type ErrorFallbackProps = {
-  error: Error;
-  resetErrorBoundary: () => void;
-};
+export default function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+  const message = getErrorMessage(error);
 
-export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <div className="flex h-screen flex-1 items-center justify-center bg-slate-900 p-6 text-white">
       <div
@@ -18,9 +17,8 @@ export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallba
           <span>
             <FontAwesomeIcon icon={faTriangleExclamation} />
           </span>
-          <code>{error.message}</code>
+          <code>{message}</code>
         </div>
-        <pre className="max-h-[75vh] max-w-full shrink overflow-auto text-clip">{error.stack}</pre>
         <button
           className="rounded-md bg-red-500 p-2 font-semibold hover:bg-red-400"
           role="button"
