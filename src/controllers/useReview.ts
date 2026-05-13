@@ -77,7 +77,7 @@ export function useReview(): IActivity & {
     dispatch(resetActivity(activityType));
   };
 
-  const start = useEffectEvent(() => {
+  const start = () => {
     const countryInUrl = searchParams.get("country");
 
     if (currentCountry) {
@@ -100,7 +100,9 @@ export function useReview(): IActivity & {
     }
 
     return setCurrentCountry(countryInUrl);
-  });
+  };
+
+  const startEvent = useEffectEvent(start);
 
   const resume = () => {
     if (currentCountry) {
@@ -115,7 +117,7 @@ export function useReview(): IActivity & {
   };
 
   useEffect(function setCountryFromUrlOnPageLoad() {
-    start();
+    startEvent();
   }, []);
 
   return {

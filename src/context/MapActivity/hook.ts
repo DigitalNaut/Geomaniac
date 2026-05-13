@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, use, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 
 import { isValidActivity, type ActivityType } from "src/types/map-activity";
@@ -13,7 +13,7 @@ export type MapActivityContextType = {
 export const MapActivityContext = createContext<MapActivityContextType | null>(null);
 
 export function useMapActivityContext() {
-  const context = useContext(MapActivityContext);
+  const context = use(MapActivityContext);
 
   if (!context) {
     throw new Error("'useMapActivityContext' must be used within a 'MapActivityProvider'");

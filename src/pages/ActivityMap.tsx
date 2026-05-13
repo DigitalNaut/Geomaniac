@@ -131,7 +131,7 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/0 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/0 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
           "text-slate-200/80 drop-shadow-md": regionHovered === countryData.SUBREGION,
           "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
@@ -315,11 +315,11 @@ function ActivityMap({
           <>
             <ZoomControl position="topright" />
             <MapControl className="flex flex-col gap-2 text-base" position="topleft">
-              <Button onClick={finishActivity} title="Finish activity" className="rounded-none">
+              <Button onClick={finishActivity} title="Finish activity" className="rounded-l-sm rounded-r-full">
                 <Button.Icon icon={faAngleLeft} />
                 <span className="w-full justify-start text-left">Menu</span>
               </Button>
-              <Button title="Reset activity" onClick={resetActivity} className="rounded-none">
+              <Button title="Reset activity" onClick={resetActivity} className="rounded-l-sm rounded-r-full">
                 <Button.Icon icon={faAngleLeft} />
                 <span className="w-full justify-start text-left">Change continent</span>
               </Button>

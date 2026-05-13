@@ -8,7 +8,7 @@ export function ActionButton({ children, className, disabled, onClick, ...props 
     <button
       disabled={disabled}
       className={twMerge(
-        "group relative cursor-pointer bg-green-600 p-4 text-center text-xl font-bold shadow-md select-none hover:bg-green-500 hover:shadow-lg disabled:cursor-not-allowed",
+        "group relative cursor-pointer rounded-sm bg-green-600 p-4 text-center text-xl font-bold shadow-md select-none hover:bg-green-500 hover:shadow-lg active:bg-green-600 active:shadow-sm disabled:cursor-not-allowed",
         className,
       )}
       onClick={onClick}

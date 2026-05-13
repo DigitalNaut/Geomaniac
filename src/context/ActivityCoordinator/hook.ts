@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { createContext, useContext } from "react";
+import { createContext, use } from "react";
 
 import type { CountryData } from "src/store/CountryStore/types";
 
@@ -21,7 +21,7 @@ type ActivityCoordinatorContextType = {
 export const ActivityCoordinatorContext = createContext<ActivityCoordinatorContextType | null>(null);
 
 export function useActivityCoordinatorContext() {
-  const context = useContext(ActivityCoordinatorContext);
+  const context = use(ActivityCoordinatorContext);
 
   if (!context) {
     throw new Error("'useActivityCoordinatorContext' must be used within a 'ActivityCoordinatorProvider'");

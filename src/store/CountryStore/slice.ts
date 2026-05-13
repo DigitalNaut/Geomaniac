@@ -191,8 +191,10 @@ export function resetActivity(activityType: ActivityType): AppThunk {
   };
 }
 
-export function restartCountryQueue(activityType: ActivityType): AppThunk {
+export function restartCountryQueue(activityType?: ActivityType): AppThunk {
   return function (dispatch, getState) {
+    if (!activityType) return;
+
     const { queue } = getState().countryStore[activityType];
 
     const currentCountryCode = queue[0];
@@ -209,35 +211,20 @@ export function restartCountryQueue(activityType: ActivityType): AppThunk {
   };
 }
 
-export function selectCurrentCountryCode(activity?: ActivityType | null): Selector<RootState, string | null> {
+export function selectCurrentCountryCode(activity?: ActivityType): (state: RootState) => string | null {
+  return ({ countryStore }) => (activity ? (countryStore[activity].queue[0] ?? null) : null);
+}
+
+export function selectNextCountry(activity?: ActivityType): Selector<RootState, CountryData | null> {
   return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activity) return null;
-      return countryStore[activity].queue[0];
-    },
-    (country) => country ?? null,
+    ({ countryStore }: RootState) => (activity ? countryStore[activity].queue[0] : null),
+    (country) => (country ? (countryCatalog[country] ?? null) : null),
   );
 }
 
-export function selectNextCountry(activityType?: ActivityType | null): Selector<RootState, CountryData | null> {
+export function selectCurrentCountryData(activityType?: ActivityType): Selector<RootState, CountryData | null> {
   return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activityType) return null;
-      return countryStore[activityType].queue[0];
-    },
-    (country) => {
-      if (!country) return null;
-      return countryCatalog[country] ?? null;
-    },
-  );
-}
-
-export function selectCurrentCountryData(activityType?: ActivityType | null): Selector<RootState, CountryData | null> {
-  return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activityType) return null;
-      return countryStore[activityType];
-    },
+    ({ countryStore }: RootState) => (activityType ? countryStore[activityType] : null),
     (activityState) => {
       const countryCode = activityState?.queue[0];
 
@@ -248,12 +235,9 @@ export function selectCurrentCountryData(activityType?: ActivityType | null): Se
   );
 }
 
-export function selectCurrentContinent(activityType?: ActivityType | null): Selector<RootState, string | null> {
+export function selectCurrentContinent(activityType?: ActivityType): Selector<RootState, string | null> {
   return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activityType) return null;
-      return countryStore[activityType];
-    },
+    ({ countryStore }: RootState) => (activityType ? countryStore[activityType] : null),
     (state) => {
       const countryCode = state?.queue[0];
       if (!countryCode) return null;
@@ -263,25 +247,5 @@ export function selectCurrentContinent(activityType?: ActivityType | null): Sele
 
       return country.CONTINENT;
     },
-  );
-}
-
-export function selectCurrentCountryQueue(activityType?: ActivityType | null): Selector<RootState, string[] | null> {
-  return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activityType) return null;
-      return countryStore[activityType];
-    },
-    (state) => state?.queue ?? null,
-  );
-}
-
-export function selectVisitedCountries(activityType?: ActivityType | null): Selector<RootState, string[] | null> {
-  return createSelector(
-    ({ countryStore }: RootState) => {
-      if (!activityType) return null;
-      return countryStore[activityType];
-    },
-    (state) => state?.visitedCountries ?? null,
   );
 }

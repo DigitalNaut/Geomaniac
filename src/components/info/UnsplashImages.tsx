@@ -59,7 +59,7 @@ export function UnsplashImages() {
 
   return (
     <>
-      <div className="relative scrollbar-thin flex max-h-[60vh] min-w-[20vw] overflow-y-auto scrollbar-thumb-sky-700 scrollbar-track-sky-900">
+      <div className="relative scrollbar-thin flex max-h-[60vh] min-w-[20vw] scrollbar-thumb-sky-700 scrollbar-track-sky-900 overflow-y-auto">
         {data.results.length > 0 && (
           <Masonry columnsCount={2}>
             {data.results.map((image) => (
