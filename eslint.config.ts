@@ -57,7 +57,7 @@ export default defineConfig(
       ],
       // See: https://github.com/schoero/eslint-plugin-better-tailwindcss/issues/243#issuecomment-3562127924
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
-      "better-tailwindcss/no-unregistered-classes": ["warn", { ignore: ["(fa\\-|leaflet\\-).+"] }],
+      "better-tailwindcss/no-unknown-classes": ["warn", { ignore: ["(fa\\-|leaflet\\-).+"] }],
     },
     settings: {
       tailwindcss: {
