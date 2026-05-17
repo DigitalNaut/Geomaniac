@@ -3,8 +3,8 @@ import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { LatLngBounds } from "leaflet";
 
 import { mapCatalogByProperty, pivotTable, shuffleArray } from "src/lib/utils";
+import type { AppThunk, RootState } from "src/store";
 import type { CountriesByContinent, CountryCatalog, CountryData } from "src/store/CountryStore/types";
-import type { AppThunk, RootState } from "..";
 
 import continentData from "src/assets/data/features/continent-features.json";
 import countryData from "src/assets/data/features/country-features.json";

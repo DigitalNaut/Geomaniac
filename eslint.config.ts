@@ -12,7 +12,7 @@ export default defineConfig(
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.recommended,
   ...pluginQuery.configs["flat/recommended"],
-  { ignores: ["node_modules", "build", "dist", "coverage", "tools"] },
+  { ignores: ["node_modules", "build", "dist", "coverage", "tools", "vite.config.d.ts"] },
   {
     extends: [js.configs.recommended, ...tsEslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -36,7 +36,19 @@ export default defineConfig(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "no-console": "warn",
       "@typescript-eslint/consistent-type-imports": "error",
-      "no-relative-import-paths/no-relative-import-paths": ["warn", { allowSameFolder: true }],
+      /**
+       * Broken in Eslint v9 and v10
+       * @see https://github.com/MelvinVermeer/eslint-plugin-no-relative-import-paths/issues/48
+       * Using no-restricted-imports workaround for now
+       * @see https://stackoverflow.com/a/65684336/17461306
+       */
+      // "no-relative-import-paths/no-relative-import-paths": ["warn", { allowSameFolder: true, rootDir: "src" }],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: ["..*"],
+        },
+      ],
       "object-shorthand": ["warn", "always"],
       "no-useless-rename": "warn",
       "consistent-return": ["warn"],

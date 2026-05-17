@@ -20,6 +20,7 @@
         "npm:@netlify/edge-functions@^3.0.6",
         "npm:@netlify/functions@^5.2.0",
         "npm:@reduxjs/toolkit@^2.11.2",
+        "npm:@rolldown/plugin-babel@~0.2.3",
         "npm:@tailwindcss/cli@^4.3.0",
         "npm:@tailwindcss/line-clamp@~0.4.4",
         "npm:@tailwindcss/typography@~0.5.19",

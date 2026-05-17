@@ -3,9 +3,7 @@
     /* As configured by the template*/
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
@@ -25,8 +23,5 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true // For handling country data
   },
-  "include": [
-    "*.config.ts",
-    "package.json"
-  ]
+  "include": ["*.config.ts", "package.json"]
 }
