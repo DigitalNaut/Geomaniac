@@ -1,7 +1,7 @@
 import { useQuiz } from "src/controllers/useQuiz";
 import {
   addVisitedCountry,
-  getNextCountry,
+  popNextCountry,
   resetActivity,
   selectCurrentCountryData,
 } from "src/store/CountryStore/slice";
@@ -40,22 +40,38 @@ export function useQuizClick(): IActivity & {
     // TODO: Styling based on score needs to be reimplemented
     // const style = qualifyScore(userGuessTally);
 
-    dispatch(addVisitedCountry({ countryA3: a3, activityType }));
-    return dispatch(getNextCountry(activityType));
+    dispatch(addVisitedCountry({ countryCode: a3, activityType }));
+    return dispatch(popNextCountry(activityType));
   };
 
   const nextCountry = () => {
     resetTally();
-    return dispatch(getNextCountry(activityType));
+    return dispatch(popNextCountry(activityType));
   };
 
   const start = () => nextCountry();
 
-  const finish = () => void resetTally();
-
-  const reset = () => void dispatch(resetActivity(activityType));
+  const reset = () => {
+    resetTally();
+    dispatch(resetActivity(activityType));
+  };
 
   const resume = () => void 0;
 
-  return { giveHint, submitClick, userGuessTally, nextCountry, start, finish, reset, resume };
+  const restart = () => {
+    resetTally();
+    dispatch(resetActivity(activityType));
+    return nextCountry();
+  };
+
+  return {
+    giveHint,
+    submitClick,
+    userGuessTally,
+    nextCountry,
+    start,
+    reset,
+    resume,
+    restart,
+  };
 }

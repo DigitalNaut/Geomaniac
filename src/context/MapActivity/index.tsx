@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
-import type { ActivityType } from "src/types/map-activity";
 import { isValidActivity } from "src/types/map-activity";
+import type { MapActivityContextType } from "./hook";
 import { MapActivityContext } from "./hook";
 
 /**
@@ -41,7 +41,7 @@ export function MapActivityProvider({ children }: PropsWithChildren) {
   const isRandomReviewMode = searchParams.get("random") === "true";
   const activity = isValidActivity(params) ? params : null;
 
-  const navigateToActivity = (newActivity: ActivityType | null) => {
+  const navigateToActivity: MapActivityContextType["navigateToActivity"] = (newActivity) => {
     navigate(newActivity ? `/${newActivity.activity}/${newActivity.kind}` : "/");
   };
 

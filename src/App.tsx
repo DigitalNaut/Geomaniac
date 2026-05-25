@@ -58,24 +58,30 @@ function Providers({ children }: PropsWithChildren) {
   );
 }
 
-function Layout() {
+function Navbar() {
+  return (
+    <Nav>
+      <div className="flex flex-1 gap-2 pl-6">
+        <Nav.Link to="/" icon={faMap}>
+          Map
+        </Nav.Link>
+        <Nav.Link to="../dashboard" icon={faChartLine}>
+          Dashboard
+        </Nav.Link>
+        <Nav.Link to="../settings" icon={faCog}>
+          Settings
+        </Nav.Link>
+      </div>
+
+      <Nav.Logo title="Geomaniac" />
+    </Nav>
+  );
+}
+
+function MainLayout() {
   return (
     <StandardLayout>
-      <Nav>
-        <div className="flex flex-1 gap-2 pl-6">
-          <Nav.Link to="/" icon={faMap}>
-            Map
-          </Nav.Link>
-          <Nav.Link to="../dashboard" icon={faChartLine}>
-            Dashboard
-          </Nav.Link>
-          <Nav.Link to="../settings" icon={faCog}>
-            Settings
-          </Nav.Link>
-        </div>
-
-        <Nav.Logo title="Geomaniac" />
-      </Nav>
+      <Navbar />
 
       <Outlet />
 
@@ -89,7 +95,7 @@ function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
+        <Route element={<MainLayout />}>
           <Route
             path="/:activity?/:kind?"
             index

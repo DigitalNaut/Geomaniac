@@ -9,6 +9,8 @@ import { CountryWikiInfo } from "src/components/info/CountryWikiInfo";
 import SourceLogo from "src/components/info/SourceLogo";
 import { UnsplashImages } from "src/components/info/UnsplashImages";
 import { useMapActivityContext } from "src/context/MapActivity/hook";
+import { selectNextCountry } from "src/store/CountryStore/slice";
+import { useAppSelector } from "src/store/hooks";
 
 const animationVariants: Variants = {
   hidden: () => ({ opacity: 0, translateY: "2rem", transition: { duration: 0.1 } }),
@@ -80,12 +82,16 @@ export function UnsplashImagesFloatingPanel() {
 
 export default function ReviewFloatingPanel({
   showNextCountry,
+  restart,
   disabled,
 }: {
   showNextCountry: () => void;
+  restart: () => void;
   disabled: boolean;
 }) {
   const { isRandomReviewMode, setRandomReviewMode } = useMapActivityContext();
+  const nextCountrySelector = selectNextCountry("review");
+  const nextCountry = useAppSelector(nextCountrySelector);
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) =>
     setRandomReviewMode(Boolean(event.currentTarget.checked));
@@ -98,15 +104,27 @@ export default function ReviewFloatingPanel({
       animate="visible"
       exit="hidden"
     >
-      <div className="pointer-events-auto flex w-fit flex-col items-center overflow-hidden rounded-md bg-slate-900 drop-shadow-lg">
-        <motion.div className="flex w-full flex-col items-center overflow-hidden rounded-md">
-          <ActionButton className="w-full" disabled={disabled} onClick={showNextCountry} title="Next country">
-            Next country
+      <div className="pointer-events-auto flex w-fit flex-col items-center bg-slate-900 drop-shadow-lg">
+        <motion.div className="flex w-full flex-col items-center rounded-sm">
+          <ActionButton
+            className="flex w-full flex-col"
+            disabled={disabled}
+            onClick={nextCountry ? showNextCountry : restart}
+            title={nextCountry ? "Next country" : "Restart"}
+          >
+            {nextCountry ? (
+              <>
+                <span>Next country</span>
+                <span className="text-sm font-normal">{nextCountry.GEOUNIT}</span>
+              </>
+            ) : (
+              <span>Restart</span>
+            )}
           </ActionButton>
           <div className="flex justify-between gap-2 p-1">
             <label className="flex items-center gap-2 p-1" htmlFor="randomMode">
               <input id="randomMode" type="checkbox" checked={isRandomReviewMode} onChange={onChange} />
-              Random mode
+              Randomize
             </label>
           </div>
         </motion.div>

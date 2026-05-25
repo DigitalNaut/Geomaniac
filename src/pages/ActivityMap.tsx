@@ -1,4 +1,4 @@
-import { faAngleLeft, faBookAtlas, faGlobe, faKeyboard, faMousePointer } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faBookAtlas, faKeyboard, faMousePointer } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Map } from "leaflet";
 import type { Variants } from "motion/react";
@@ -32,13 +32,19 @@ import { useHeaderController } from "src/context/useHeaderController";
 import { useError } from "src/hooks/common/useError";
 import { useGuessRecord } from "src/hooks/useGuessRecord";
 import { useMapViewport } from "src/hooks/useMapViewport";
-import { countriesByContinent, countryCatalog } from "src/store/CountryStore/slice";
+import {
+  countriesByContinent,
+  countryCatalog,
+  selectCurrentContinent,
+  selectCurrentCountryData,
+} from "src/store/CountryStore/slice";
 import type { CountryData } from "src/store/CountryStore/types";
 import type { ActivityMode, ActivityType } from "src/types/map-activity";
 import { getLabelCoordinates } from "src/utils/features";
 import { cn } from "src/utils/styles";
 
 import NerdMascot from "src/assets/images/mascot-nerd.min.svg";
+import { useAppSelector } from "src/store/hooks";
 
 const mapGradientTheme = {
   noActivity: "from-sky-700 to-sky-800 blur-xs",
@@ -112,6 +118,9 @@ function CountryLabel({
   };
 }) {
   const countryData = countryCatalog[countryCode];
+
+  if (!countryData) return null;
+
   const position = projectFn(getLabelCoordinates(countryData));
   const sovereignt = countryData.SOVEREIGNT === countryData.GEOUNIT ? null : countryData.SOVEREIGNT;
   const admin =
@@ -122,7 +131,7 @@ function CountryLabel({
   return (
     <div
       className={cn(
-        "absolute z-402 -translate-x-1/2 -translate-y-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/0 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
+        "absolute z-402 -translate-1/2 cursor-pointer overflow-hidden rounded-sm text-center text-xs text-white/0 transition duration-0 [transition:opacity_250ms_ease-in-out_10ms,color_250ms_ease-in-out_10ms,background-color_250ms_ease-out_10ms,translate_250ms_ease-in-out_10ms] hover:bg-slate-200/80 hover:text-slate-700 hover:opacity-100",
         {
           "text-slate-200/80 drop-shadow-md": regionHovered === countryData.SUBREGION,
           "bg-lime-600 text-slate-200": sovereigntHovered === sovereignt,
@@ -247,7 +256,6 @@ function ActivityMap({
   const { map } = useMapContext();
   const { resetViewport } = useMapViewport();
   const {
-    currentActivityState,
     handleMapClick,
     visitedCountries,
     guessTally,
@@ -257,9 +265,16 @@ function ActivityMap({
     submitAnswer,
     setContinent,
     reset,
+    restart,
   } = useActivityCoordinatorContext();
 
-  const { currentContinent, currentCountry } = currentActivityState ?? {};
+  const { activity } = useMapActivityContext();
+
+  const currentContinentSelector = selectCurrentContinent(activity?.activity);
+  const currentContinent = useAppSelector(currentContinentSelector);
+
+  const currentCountrySelector = selectCurrentCountryData(activity?.activity);
+  const currentCountry = useAppSelector(currentCountrySelector);
 
   const storedCountryCoordinates = currentCountry ? getLabelCoordinates(currentCountry) : null;
 
@@ -275,13 +290,11 @@ function ActivityMap({
 
   useHeaderController(finishActivity);
 
-  const { activity } = useMapActivityContext();
-
   const colorTheme = mapActivityTheme[activity?.activity || "default"];
 
   const mapLists: ActiveSvgMapLists = {
     // Active list is all countries in the current continent
-    activeList: !currentContinent ? [] : countriesByContinent[currentContinent].slice(),
+    activeList: !currentContinent ? [] : (countriesByContinent[currentContinent]?.slice() ?? []),
     // Highlight list is the current country unless Pointing
     highlightList: activity?.kind === "pointing" ? [] : !currentCountry ? [] : [currentCountry.GU_A3],
     visitedList: visitedCountries,
@@ -301,14 +314,14 @@ function ActivityMap({
         {activity && (
           <>
             <ZoomControl position="topright" />
-            <MapControl className="flex gap-2 text-base" position="topleft">
-              <Button onClick={finishActivity} title="Finish activity">
+            <MapControl className="flex flex-col gap-2 text-base" position="topleft">
+              <Button onClick={finishActivity} title="Finish activity" className="rounded-l-sm rounded-r-full">
                 <Button.Icon icon={faAngleLeft} />
-                Menu
+                <span className="w-full justify-start text-left">Menu</span>
               </Button>
-              <Button title="Reset activity" onClick={resetActivity}>
-                <Button.Icon icon={faGlobe} />
-                Change continent
+              <Button title="Reset activity" onClick={resetActivity} className="rounded-l-sm rounded-r-full">
+                <Button.Icon icon={faAngleLeft} />
+                <span className="w-full justify-start text-left">Change continent</span>
               </Button>
             </MapControl>
 
@@ -372,6 +385,7 @@ function ActivityMap({
               <ReviewFloatingPanel
                 key="review-floating-panel"
                 showNextCountry={nextCountry}
+                restart={restart}
                 disabled={!currentCountry}
               />
               <WikipediaFloatingPanel key="wikipedia-floating-panel" onError={setError} />
@@ -409,39 +423,34 @@ export default function ActivityMapLayout() {
         <AnimatePresence>
           {!isActivitySelected && (
             <InstructionOverlay key="instruction-overlay">
-              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center gap-8 p-6">
-                <h1 className="text-2xl">Learn Geography</h1>
-                <div className="flex flex-col shadow-lg">
+              <section className="flex w-full max-w-(--breakpoint-sm) min-w-max flex-col items-center overflow-hidden rounded-lg p-6 first:rounded-t-2xl last:rounded-b-2xl">
+                <h1 className="w-full p-4 text-center text-4xl uppercase">Learn Geography</h1>
+                <div className="flex w-full flex-col shadow-lg">
                   <ActivityButton
                     type="review"
                     icon={<FontAwesomeIcon icon={faBookAtlas} />}
                     label="Review the map"
                     summary="Learn country names by region"
-                    onClick={() => {
-                      navigateToActivity(activities["review-countries"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["review-countries"])}
                   />
                 </div>
 
-                <h2 className="text-xl">And test your knowledge</h2>
-                <div className="flex flex-col shadow-lg">
+                <h2 className="w-full p-4 text-center text-xl uppercase">And test yourself</h2>
+                <div className="flex w-full flex-col gap-2 shadow-lg">
                   <ActivityButton
                     type="quiz"
                     icon={<FontAwesomeIcon icon={faMousePointer} />}
                     label="Point & click"
                     summary="Point out the country on the map"
-                    onClick={() => {
-                      navigateToActivity(activities["quiz-pointing"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["quiz-pointing"])}
                   />
                   <ActivityButton
                     type="quiz"
+                    className="w-full"
                     icon={<FontAwesomeIcon icon={faKeyboard} />}
                     label="Typing quiz"
                     summary="Type in the name of the country"
-                    onClick={() => {
-                      navigateToActivity(activities["quiz-typing"]);
-                    }}
+                    onClick={() => void navigateToActivity(activities["quiz-typing"])}
                   />
                 </div>
               </section>
