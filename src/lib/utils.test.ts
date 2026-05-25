@@ -1,47 +1,45 @@
-import { suite, it, expect } from "vitest";
+import { suite, describe, it, expect } from "vitest";
 
-import { pivotMap, pivotTable, selectRandom, shuffleArray } from "./utils";
+import { groupBy, selectRandom, shuffleArray } from "./utils";
 
 suite("Utilities", () => {
-  it("should shuffle an array", () => {
+  describe(shuffleArray.name, () => {
     const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const shuffled = shuffleArray(array);
-
-    expect(shuffled.join(",")).not.toBe(array.join(","));
+    it("should shuffle an array", () => {
+      const shuffled = shuffleArray(array);
+      expect(shuffled).not.toEqual(array);
+    });
   });
 
-  it("should select a random item from an array", () => {
-    const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const item = array.map(() => selectRandom(array));
+  describe(selectRandom.name, () => {
+    it("should select a random item from an array", () => {
+      const array = ["a", "b", "c", "d", "e", 1, 2, 3, 4, 5];
+      const item1 = selectRandom(array);
+      expect(item1).toBeDefined();
+      expect(item1).toBeOneOf(array);
 
-    expect(new Set(item)).not.toEqual(new Set(array));
+      array.splice(array.indexOf(item1!), 1);
+
+      const item2 = selectRandom(array);
+      expect(item2).toBeDefined();
+      expect(item2).toBeOneOf(array);
+      expect(item1).not.toBe(item2);
+    });
   });
 
-  it("should pivot a map into a map of arrays grouped by a key", () => {
-    const map = new Map([
-      ["item 1", { group: "Group 1", property: "value 1" }],
-      ["item 2", { group: "Group 1", property: "value 2" }],
-      ["item 3", { group: "Group 2", property: "value 3" }],
-      ["item 4", { group: "Group 2", property: "value 4" }],
-    ]);
-
-    const pivot = pivotMap(map, "group", (item) => item.property);
-
-    expect(pivot.get("Group 1")).toEqual(["value 1", "value 2"]);
-    expect(pivot.get("Group 2")).toEqual(["value 3", "value 4"]);
-  });
-
-  it("should pivot a flat hash map into a hash map of arrays grouped by a key", () => {
-    const map = {
-      "item 1": { group: "Group 1", property: "value 1" },
-      "item 2": { group: "Group 1", property: "value 2" },
-      "item 3": { group: "Group 2", property: "value 3" },
-      "item 4": { group: "Group 2", property: "value 4" },
-    };
-
-    const pivot = pivotTable(map, "group", (item) => item.property);
-
-    expect(pivot["Group 1"]).toEqual(["value 1", "value 2"]);
-    expect(pivot["Group 2"]).toEqual(["value 3", "value 4"]);
+  describe(groupBy.name, () => {
+    it("should group items by a shared property", () => {
+      const products = {
+        p1: { category: "Electronics", name: "Keyboard" },
+        p2: { category: "Electronics", name: "Monitor" },
+        p3: { category: "Furniture", name: "Desk" },
+        p4: { category: "Furniture", name: "Chair" },
+      };
+      const grouped = groupBy(products, "category", (v) => v);
+      expect(grouped).toEqual({
+        Electronics: [products.p1, products.p2],
+        Furniture: [products.p3, products.p4],
+      });
+    });
   });
 });

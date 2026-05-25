@@ -7,14 +7,14 @@
 export function shuffleArray<T>(array: T[]) {
   if (array.length === 0) return [];
 
-  const copy = array.slice();
+  const result = array.slice();
 
-  for (let i = copy.length - 1; i >= 0; i--) {
+  for (let i = result.length - 1; i >= 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [copy[i] as unknown, copy[j] as unknown] = [copy[j], copy[i]];
+    [result[i] as unknown, result[j] as unknown] = [result[j], result[i]];
   }
 
-  return copy;
+  return result;
 }
 
 /**
@@ -22,184 +22,99 @@ export function shuffleArray<T>(array: T[]) {
  *  @param array The array to select from
  * @returns A random item from the array
  */
-export function selectRandom<T>(list: T[]) {
+export function selectRandom<T extends NonNullable<unknown>>(list: T[]) {
   const randomIndex = Math.floor(Math.random() * list.length);
   return list[randomIndex];
 }
 
 /**
- * Pivots a flat Map of strings into a map of arrays based on two value keys.
+ * Groups the entries of a record by a shared property, collecting transformed values under each group key.
  *
- * Groups each entry under the specified key while collecting values based on the capture property.
+ * @param records - The record whose values are to be grouped.
+ * @param property - The property of each entry whose value is used as the group key.
+ *   Must resolve to a `PropertyKey` (`string`, `number`, or `symbol`).
+ * @param getValue - A function that maps each entry to the value stored in its group.
+ * @returns A record mapping each distinct group key to an array of mapped values.
  *
- * Example:
- *
- *
- * Using:
- * ```json
- * {
- *   "item 1": { "group": "Group 1", "property": "value 1", },
- *   "item 2": { "group": "Group 1", "property": "value 2", },
- * }
- * ```
- *
- * Example:
+ * @example
  * ```ts
- * pivotMap(map, "group", (item) => item.property)
- * ```
+ * const products = {
+ *   "p1": { category: "Electronics", name: "Keyboard" },
+ *   "p2": { category: "Electronics", name: "Monitor" },
+ *   "p3": { category: "Furniture",   name: "Desk" },
+ *   "p4": { category: "Furniture",   name: "Chair" },
+ * };
  *
- * Result:
- * ```json
- * [
- *   ["Group 1", [
- *     "value 1",
- *     "value 1",
- *     ...
- *   ]],
- *  ...
- * ]
+ * groupBy(products, "category", (product) => product.name);
+ * // {
+ * //   "Electronics": ["Keyboard", "Monitor"],
+ * //   "Furniture":   ["Desk", "Chair"],
+ * // }
  * ```
- * @param map A flat Map of strings
- * @param property The property to group by
- * @param mapper A callback to capture the value for each entry
- * @returns A new Map of captured values grouped by the key
  */
-export function pivotMap<T extends Record<string, unknown>, U>(
-  map: Map<string, T>,
-  property: keyof T,
-  mapper: (value: T) => U,
-) {
-  return map.values().reduce<Map<string, U[]>>((entries, entry) => {
-    const key = entry[property]?.toString();
+export function groupBy<TObject extends Record<TKey, unknown>, TKey extends PropertyKey, TValue>(
+  records: Record<PropertyKey, TObject>,
+  property: TObject[TKey] extends PropertyKey ? TKey : never,
+  getValue: (value: TObject) => TValue,
+): Record<PropertyKey, TValue[]> {
+  const result: ReturnType<typeof groupBy> = {};
 
-    if (!key) return entries;
+  for (const item of Object.values(records)) {
+    const key = item[property];
+    if (key === undefined || key === null || typeof key === "object") continue;
 
-    const prevValues = entries.get(key);
-    const mappedValue = mapper(entry);
+    const prevValues = result[key];
+    const newValue = getValue(item);
 
     if (prevValues) {
-      prevValues.push(mappedValue); // Mutate reference
+      prevValues.push(newValue);
     } else {
-      entries.set(key, [mappedValue]); // Register new list
+      result[key] = [newValue];
     }
+  }
 
-    return entries;
-  }, new Map());
+  return result;
 }
 
 /**
- * Pivots a flat Map of strings into a map of arrays based on two value keys.
+ * Transforms an array of items into a record by deriving a key and value from each item.
  *
- * Groups each entry under the specified key while collecting values based on the capture property.
+ * @param items - The array of items to transform.
+ * @param getKey - A function that derives the record key from each item.
+ * @param getValue - A function that derives the record value from each item.
+ * @returns A record mapping each derived key to its derived value.
  *
- * Example:
+ * @example
+ * Group items by type
  *
- *
- * Using:
- * ```json
- * {
- *   "item 1": { "group": "Group 1", "property": "value 1", },
- *   "item 2": { "group": "Group 1", "property": "value 2", },
- *   "item 3": { "group": "Group 2", "property": "value 3", },
- *   "item 4": { "group": "Group 2", "property": "value 4", },
- * }
- * ```
- *
- * Example:
  * ```ts
- * pivotTable(map, "group", (item) => item.property)
+ * const fruits = [{ type: "fruit", name: "apple" },
+ *  { type: "fruit", name: "banana" },
+ *  { type: "vegetable", name: "carrot" }
+ * ];
+ *
+ * const sortedFruits = keyBy(fruits, (f) => f.type, (f) => f.name);
+ * // {
+ * //   "fruit": ["apple", "banana"],
+ * //   "vegetable": ["carrot"],
+ * // }
  * ```
  *
- * Result:
- * ```json
- * {
- *   "Group 1": [
- *     "value 1",
- *     "value 2",
- *     ...
- *   ],
- *   "Group 2": [
- *     "value 3",
- *     "value 4",
- *     ...
- *   ],
- *  ...
- * }
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy Object.groupBy}
+ * for a native alternative that always groups items into arrays.
  */
-export function pivotTable<T extends Record<string, unknown>, K extends keyof T, V>(
-  table: Record<string, T>,
-  property: K extends string ? K : never,
-  mapper: (value: T) => V,
-) {
-  return Object.values(table).reduce<Record<string, V[]>>((entries, item) => {
-    const keyValue = item[property]?.toString();
-    if (!keyValue || keyValue.length === 0) return entries;
-
-    const prevValues = entries[keyValue];
-    const mappedValue = mapper(item);
-
-    if (prevValues) {
-      prevValues.push(mappedValue); // Mutate reference
-    } else {
-      entries[keyValue] = [mappedValue]; // Register new list
-    }
-
-    return entries;
-  }, {});
-}
-
-/**
- * Creates a catalog from an array of items.
- * Use the label mapper to select the label from the item that will be used as the key.
- * Use the value mapper to calculate a value from the item.
- *
- *  Example:
- *  ```ts
- *  const catalog = createCatalog(items, (item) => item.id), (item) => item);
- *  ```
- *
- *  From:
- *  ```json
- *  [
- *    { id: "id 1", "category": "category 1", ... },
- *    { id: "id 2", "category": "category 1", ... },
- *    { id: "id 3", "category": "category 2", ... },
- *    { id: "id 4", "category": "category 2", ... },
- *    ...
- * ]
- *  ```
- *
- *  Result:
- *  ```json
- *  {
- *    "category 1": [
- *      { id: "id 1", "category": "category 1", ... },
- *      { id: "id 2", "category": "category 1", ... },
- *      ...
- *    ],
- *    "category 2": [
- *      { id: "id 3", "category": "category 2", ... },
- *      { id: "id 4", "category": "category 2", ... },
- *      ...
- *    ],
- *    ...
- *  }
- *  ```
- *
- * @param items An array of objects
- */
-export function mapCatalogByProperty<R extends Record<string, unknown>, L extends string = string, MV = R>(
-  items: R[],
-  labelMapper: (item: R) => L,
-  valueMapper: (item: R) => MV,
-) {
-  const catalog: Record<string, MV> = {};
+export function keyBy<TItem extends Record<PropertyKey, unknown>, TKey extends PropertyKey, TValue>(
+  items: TItem[],
+  getKey: (item: TItem) => TKey,
+  getValue: (item: TItem) => TValue,
+): Record<TKey, TValue> {
+  const result: Record<PropertyKey, TValue> = {};
 
   for (const item of items) {
     if (!item) continue;
-    const key = labelMapper(item);
-    catalog[key] = valueMapper(item);
+    const key = getKey(item);
+    result[key] = getValue(item);
   }
 
-  return catalog;
+  return result;
 }
